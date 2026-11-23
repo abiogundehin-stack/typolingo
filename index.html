@@ -1,0 +1,2216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TypeLingo — Learn Touch Typing the Duolingo Way</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --duo-green: #58CC02;
+      --duo-green-dark: #46A302;
+      --duo-green-light: #D7FFB8;
+      --duo-blue: #1CB0F6;
+      --duo-blue-dark: #1899D6;
+      --duo-blue-bg: #DDF4FF;
+      --duo-purple: #CE82FF;
+      --duo-purple-dark: #A568CC;
+      --duo-gold: #FFC800;
+      --duo-gold-dark: #E5A500;
+      --duo-red: #FF4B4B;
+      --duo-red-dark: #EA2B2B;
+      --duo-orange: #FF9600;
+      --duo-border: #E5E5E5;
+      --duo-text: #3C3C3C;
+      --duo-muted: #777777;
+    }
+
+    body {
+      font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #FFFFFF;
+      color: var(--duo-text);
+      overflow-x: hidden;
+      user-select: none;
+    }
+
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Authentic Duolingo 3D Tactile Buttons */
+    .duo-btn {
+      border-bottom-width: 4px;
+      transition: transform 0.08s ease, border-bottom-width 0.08s ease, filter 0.15s ease;
+    }
+    .duo-btn:hover:not(:disabled) {
+      filter: brightness(1.04);
+    }
+    .duo-btn:active:not(:disabled) {
+      transform: translateY(3px);
+      border-bottom-width: 1px;
+    }
+    .duo-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .duo-btn-green {
+      background-color: var(--duo-green);
+      border-color: var(--duo-green-dark);
+      color: #FFFFFF;
+    }
+    .duo-btn-blue {
+      background-color: var(--duo-blue);
+      border-color: var(--duo-blue-dark);
+      color: #FFFFFF;
+    }
+    .duo-btn-gold {
+      background-color: var(--duo-gold);
+      border-color: var(--duo-gold-dark);
+      color: #5C4300;
+    }
+    .duo-btn-purple {
+      background-color: var(--duo-purple);
+      border-color: var(--duo-purple-dark);
+      color: #FFFFFF;
+    }
+    .duo-btn-white {
+      background-color: #FFFFFF;
+      border: 2px solid var(--duo-border);
+      border-bottom-width: 4px;
+      color: var(--duo-text);
+    }
+
+    /* Duolingo Winding Path 3D Circular Nodes */
+    .path-node {
+      width: 74px;
+      height: 68px;
+      border-radius: 9999px;
+      border-bottom-width: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: transform 0.1s ease, border-bottom-width 0.1s ease;
+    }
+    .path-node:active {
+      transform: translateY(4px);
+      border-bottom-width: 3px;
+    }
+
+    /* Tactile 3D Keycaps */
+    .duo-keycap {
+      background-color: #FFFFFF;
+      border: 2px solid #E5E5E5;
+      border-bottom-width: 4px;
+      border-radius: 10px;
+      transition: transform 0.06s ease, background-color 0.1s ease, border-color 0.1s ease;
+    }
+    .duo-keycap.active-target {
+      background-color: #DDF4FF;
+      border-color: #1CB0F6;
+      color: #1899D6;
+      transform: translateY(-2px);
+    }
+    .duo-keycap.pressed-hit {
+      background-color: #D7FFB8;
+      border-color: #58CC02;
+      transform: translateY(2px);
+      border-bottom-width: 2px;
+    }
+
+    /* Speech Bubble Tail */
+    .speech-bubble {
+      position: relative;
+      background: #FFFFFF;
+      border: 2px solid #E5E5E5;
+      border-radius: 16px;
+    }
+    .speech-bubble::before {
+      content: '';
+      position: absolute;
+      left: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-top: 9px solid transparent;
+      border-bottom: 9px solid transparent;
+      border-right: 10px solid #E5E5E5;
+    }
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      left: -7px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-top: 7px solid transparent;
+      border-bottom: 7px solid transparent;
+      border-right: 8px solid #FFFFFF;
+    }
+
+    @keyframes floatBounce {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+    .animate-duo-float {
+      animation: floatBounce 1.8s ease-in-out infinite;
+    }
+
+    @keyframes gentleShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      50% { transform: translateX(6px); }
+      75% { transform: translateX(-4px); }
+    }
+    .animate-duo-shake {
+      animation: gentleShake 0.25s ease-in-out;
+    }
+
+    @keyframes caretPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+    .duo-caret {
+      border-left: 3px solid #1CB0F6;
+      animation: caretPulse 0.9s infinite;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #F7F7F7; }
+    ::-webkit-scrollbar-thumb { background: #DCDCDC; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #BDBDBD; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-white text-[#3C3C3C]">
+
+  <!-- Confetti Overlay -->
+  <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
+
+  <!-- Toast Banner -->
+  <div id="duo-toast" class="fixed bottom-20 md:bottom-6 right-5 z-50 transform translate-y-28 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="bg-white border-2 border-[#E5E5E5] border-b-4 rounded-2xl px-4 py-3 shadow-lg flex items-center gap-3">
+      <span id="toast-icon" class="text-2xl">🦉</span>
+      <div>
+        <div id="toast-title" class="font-extrabold text-sm text-[#3C3C3C]">Awesome!</div>
+        <div id="toast-msg" class="text-xs font-semibold text-[#777777]">Progress saved.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MAIN 3-COLUMN DUOLINGO WEB APP SHELL                                  -->
+  <!-- ===================================================================== -->
+  <div id="app-shell" class="flex-1 flex flex-col md:flex-row max-w-[1320px] w-full mx-auto">
+
+    <!-- 1. LEFT NAVIGATION SIDEBAR (Desktop) -->
+    <aside class="hidden md:flex flex-col w-[240px] lg:w-[256px] shrink-0 border-r-2 border-[#E5E5E5] px-4 py-6 sticky top-0 h-screen justify-between bg-white z-30">
+      <div>
+        <!-- Brand Logo -->
+        <button onclick="switchTab('learn')" class="flex items-center gap-2.5 px-3 mb-7 focus:outline-none group">
+          <div class="w-10 h-10 rounded-xl bg-[#58CC02] border-b-4 border-[#46A302] flex items-center justify-center shadow-sm group-hover:scale-105 transition">
+            <!-- Mini Pip Owl Icon -->
+            <svg viewBox="0 0 40 40" class="w-7 h-7">
+              <circle cx="20" cy="21" r="14" fill="#58CC02"/>
+              <path d="M9 12 L14 16 L11 19 Z" fill="#46A302"/>
+              <path d="M31 12 L26 16 L29 19 Z" fill="#46A302"/>
+              <circle cx="15" cy="19" r="5.5" fill="#FFFFFF"/>
+              <circle cx="25" cy="19" r="5.5" fill="#FFFFFF"/>
+              <circle cx="15.5" cy="19" r="2.6" fill="#3C3C3C"/>
+              <circle cx="24.5" cy="19" r="2.6" fill="#3C3C3C"/>
+              <polygon points="17.5,23 22.5,23 20,27" fill="#FF9600"/>
+            </svg>
+          </div>
+          <span class="text-2xl font-black tracking-tight text-[#58CC02]">typelingo</span>
+        </button>
+
+        <!-- Primary Navigation Items -->
+        <nav class="flex flex-col gap-1.5" id="desktop-nav">
+          <button onclick="switchTab('learn')" data-nav="learn" class="nav-item flex items-center gap-4 px-4 py-3 rounded-xl font-extrabold text-sm uppercase tracking-wider border-2 border-[#84D8FF] bg-[#DDF4FF] text-[#1CB0F6]">
+            <svg class="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z"/></svg>
+            <span>Learn</span>
+          </button>
+
+          <button onclick="switchTab('practice')" data-nav="practice" class="nav-item flex items-center gap-4 px-4 py-3 rounded-xl font-extrabold text-sm uppercase tracking-wider border-2 border-transparent text-[#777777] hover:bg-[#F7F7F7]">
+            <svg class="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/></svg>
+            <span>Practice Hub</span>
+          </button>
+
+          <button onclick="switchTab('leaderboards')" data-nav="leaderboards" class="nav-item flex items-center gap-4 px-4 py-3 rounded-xl font-extrabold text-sm uppercase tracking-wider border-2 border-transparent text-[#777777] hover:bg-[#F7F7F7]">
+            <svg class="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
+            <span>Leaderboards</span>
+          </button>
+
+          <button onclick="switchTab('quests')" data-nav="quests" class="nav-item flex items-center gap-4 px-4 py-3 rounded-xl font-extrabold text-sm uppercase tracking-wider border-2 border-transparent text-[#777777] hover:bg-[#F7F7F7]">
+            <svg class="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/></svg>
+            <span>Quests</span>
+          </button>
+
+          <button onclick="switchTab('shop')" data-nav="shop" class="nav-item flex items-center gap-4 px-4 py-3 rounded-xl font-extrabold text-sm uppercase tracking-wider border-2 border-transparent text-[#777777] hover:bg-[#F7F7F7]">
+            <svg class="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M18.36 9l.6 3H5.04l.6-3h12.72M20 4H4v2h16V4zm0 3H4l-1 5v2h1v6h10v-6h4v6h2v-6h1v-2l-1-5zM6 18v-4h6v4H6z"/></svg>
+            <span>Shop</span>
+          </button>
+
+          <button onclick="switchTab('profile')" data-nav="profile" class="nav-item flex items-center gap-4 px-4 py-3 rounded-xl font-extrabold text-sm uppercase tracking-wider border-2 border-transparent text-[#777777] hover:bg-[#F7F7F7]">
+            <svg class="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <span>Profile</span>
+          </button>
+
+          <button onclick="switchTab('settings')" data-nav="settings" class="nav-item flex items-center gap-4 px-4 py-3 rounded-xl font-extrabold text-sm uppercase tracking-wider border-2 border-transparent text-[#777777] hover:bg-[#F7F7F7]">
+            <svg class="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+            <span>Settings</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Active Boost Indicator Pill in Sidebar -->
+      <div id="sidebar-boost-card" class="hidden bg-[#F3E5FF] border-2 border-[#CE82FF] rounded-2xl p-3 text-center">
+        <div class="text-xs font-black uppercase text-[#A568CC]">⚡ 2X XP Boost Active</div>
+        <div class="text-[11px] font-bold text-[#777777] mt-0.5">All lessons & challenges award double XP!</div>
+      </div>
+    </aside>
+
+    <!-- MOBILE TOP STATUS HEADER -->
+    <header class="md:hidden sticky top-0 z-30 bg-white border-b-2 border-[#E5E5E5] px-4 py-2.5 flex items-center justify-between">
+      <button onclick="switchTab('learn')" class="font-black text-xl text-[#58CC02] tracking-tight">typelingo</button>
+      <div class="flex items-center gap-3 text-sm font-extrabold">
+        <span class="flex items-center gap-1 text-[#FF9600]">🔥 <span id="mob-streak">5</span></span>
+        <span class="flex items-center gap-1 text-[#1CB0F6]">💎 <span id="mob-gems">420</span></span>
+        <button onclick="refillHeartsPrompt()" class="flex items-center gap-1 text-[#FF4B4B]">❤️ <span id="mob-hearts">5</span></button>
+      </div>
+    </header>
+
+    <!-- 2. CENTER MAIN CONTENT COLUMN -->
+    <main class="flex-1 min-w-0 px-4 sm:px-8 py-6 pb-24 md:pb-12 max-w-[680px] mx-auto w-full">
+
+      <!-- =============================================================== -->
+      <!-- TAB 1: LEARN (WINDING PATH & UNIT BANNER)                       -->
+      <!-- =============================================================== -->
+      <section id="tab-learn" class="block">
+        
+        <!-- Sticky Unit Header Banner -->
+        <div id="unit-banner" class="sticky top-14 md:top-4 z-20 rounded-2xl bg-[#58CC02] border-b-4 border-[#46A302] text-white p-4 sm:p-5 shadow-md mb-8 transition-colors">
+          <div class="flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-white/85 mb-0.5">
+                <span id="unit-section-label">Section 1, Unit 1</span>
+                <span>•</span>
+                <span id="unit-pacing-pill" class="bg-black/20 px-2 py-0.5 rounded-full">Challenge every 5th step</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <h1 id="unit-title-label" class="text-xl sm:text-2xl font-black truncate">Home Row Foundations</h1>
+                <!-- Quick Unit Switcher Dropdown -->
+                <select id="unit-switcher" onchange="selectUnit(Number(this.value))" aria-label="Switch Unit" class="bg-black/20 hover:bg-black/30 text-white text-xs font-extrabold rounded-xl px-2.5 py-1.5 cursor-pointer focus:outline-none">
+                  <option value="0" class="text-slate-900">Unit 1: Home Row Foundations</option>
+                  <option value="1" class="text-slate-900">Unit 2: Top & Bottom Reach</option>
+                  <option value="2" class="text-slate-900">Unit 3: Velocity & Capitals</option>
+                  <option value="3" class="text-slate-900">Unit 4: Numbers & Code Syntax</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Guidebook Button -->
+            <button onclick="openGuidebook()" class="shrink-0 flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-black/15 hover:bg-black/25 border-2 border-white/30 border-b-4 font-extrabold text-xs uppercase tracking-wider transition active:translate-y-0.5">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+              <span class="hidden sm:inline">Guidebook</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Winding S-Curve Path Container -->
+        <div id="winding-path-wrapper" class="relative flex flex-col items-center py-4">
+          <svg id="winding-path-svg" class="absolute inset-0 w-full h-full pointer-events-none z-0"></svg>
+          <div id="winding-nodes-container" class="w-full flex flex-col items-center gap-7 relative z-10">
+            <!-- Nodes generated dynamically -->
+          </div>
+        </div>
+      </section>
+
+      <!-- =============================================================== -->
+      <!-- TAB 2: PRACTICE HUB (MISTAKE REVIEW & SPEED BOOSTER)            -->
+      <!-- =============================================================== -->
+      <section id="tab-practice" class="hidden">
+        <h2 class="text-2xl font-black text-[#3C3C3C] mb-1">Today's Review</h2>
+        <p class="text-sm font-semibold text-[#777777] mb-6">Personalized drills built from your keystroke telemetry.</p>
+
+        <div class="flex flex-col gap-4">
+          <!-- Mistake Review Card -->
+          <div class="border-2 border-[#E5E5E5] rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-[#F7F7F7] transition">
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 rounded-2xl bg-[#FFE5E5] border-b-4 border-[#FF4B4B] flex items-center justify-center text-3xl shrink-0">🎯</div>
+              <div>
+                <div class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase bg-[#FFE5E5] text-[#EA2B2B] mb-1">Targeted Accuracy</div>
+                <h3 class="text-lg font-extrabold text-[#3C3C3C]">Mistake Review</h3>
+                <p id="weak-keys-summary" class="text-xs font-semibold text-[#777777] mt-0.5">Focus keys: E, R, T, I, O — Eliminate hesitation on tricky reaches.</p>
+              </div>
+            </div>
+            <button onclick="startPracticeDrill('mistakes')" class="duo-btn duo-btn-blue px-5 py-3 rounded-2xl font-extrabold text-xs uppercase tracking-wider whitespace-nowrap w-full sm:w-auto">
+              Practice +20 XP
+            </button>
+          </div>
+
+          <!-- Speed Booster Card -->
+          <div class="border-2 border-[#E5E5E5] rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-[#F7F7F7] transition">
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 rounded-2xl bg-[#FFF5D6] border-b-4 border-[#FFC800] flex items-center justify-center text-3xl shrink-0">⚡</div>
+              <div>
+                <div class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase bg-[#FFF5D6] text-[#B27D00] mb-1">WPM Burst</div>
+                <h3 class="text-lg font-extrabold text-[#3C3C3C]">Rapid Word Sprint</h3>
+                <p class="text-xs font-semibold text-[#777777] mt-0.5">High-frequency English words to push your personal best WPM higher.</p>
+              </div>
+            </div>
+            <button onclick="startPracticeDrill('speed')" class="duo-btn duo-btn-green px-5 py-3 rounded-2xl font-extrabold text-xs uppercase tracking-wider whitespace-nowrap w-full sm:w-auto">
+              Start Sprint +25 XP
+            </button>
+          </div>
+
+          <!-- Match Madness / Ramp Up Replay Card -->
+          <div class="border-2 border-[#CE82FF] bg-[#FAF2FF] rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 rounded-2xl bg-[#CE82FF] border-b-4 border-[#A568CC] flex items-center justify-center text-3xl text-white shrink-0">⏱️</div>
+              <div>
+                <div class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase bg-[#CE82FF] text-white mb-1">Timed Event</div>
+                <h3 class="text-lg font-extrabold text-[#3C3C3C]">Match Madness & Ramp Up</h3>
+                <p class="text-xs font-semibold text-[#777777] mt-0.5">Beat the 45-second timer across 3 escalating speed waves!</p>
+              </div>
+            </div>
+            <button onclick="startMilestoneChallenge(state.currentUnit, true)" class="duo-btn duo-btn-purple px-5 py-3 rounded-2xl font-extrabold text-xs uppercase tracking-wider whitespace-nowrap w-full sm:w-auto">
+              Play Challenge +40 XP
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- =============================================================== -->
+      <!-- TAB 3: LEADERBOARDS (DIAMOND LEAGUE)                            -->
+      <!-- =============================================================== -->
+      <section id="tab-leaderboards" class="hidden">
+        <div class="text-center mb-6">
+          <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-[#DDF4FF] border-b-4 border-[#1CB0F6] text-4xl mb-3">💎</div>
+          <h2 class="text-2xl font-black text-[#3C3C3C]">Diamond League</h2>
+          <p class="text-sm font-semibold text-[#777777]">Top 7 advance to the Ruby Tournament • Ends in 2 days</p>
+        </div>
+
+        <div id="full-leaderboard-list" class="border-2 border-[#E5E5E5] rounded-2xl overflow-hidden divide-y-2 divide-[#E5E5E5]">
+          <!-- Populated via JS -->
+        </div>
+      </section>
+
+      <!-- =============================================================== -->
+      <!-- TAB 4: QUESTS (DAILY & MONTHLY BADGES)                          -->
+      <!-- =============================================================== -->
+      <section id="tab-quests" class="hidden">
+        <div class="bg-[#CE82FF] border-b-4 border-[#A568CC] rounded-2xl p-5 text-white mb-6 flex items-center justify-between">
+          <div>
+            <div class="text-xs font-black uppercase tracking-wider opacity-85">November Challenge</div>
+            <h2 class="text-2xl font-black">Pip's Golden Keycap Quest</h2>
+            <p class="text-xs font-bold opacity-90 mt-1">Complete 15 Daily Quests this month to unlock the Golden Owl badge!</p>
+          </div>
+          <div class="text-5xl">🏅</div>
+        </div>
+
+        <h3 class="text-lg font-black text-[#3C3C3C] mb-3">Daily Quests</h3>
+        <div id="full-quests-list" class="flex flex-col gap-3">
+          <!-- Populated via JS -->
+        </div>
+      </section>
+
+      <!-- =============================================================== -->
+      <!-- TAB 5: SHOP (GEMS & POWER-UPS)                                  -->
+      <!-- =============================================================== -->
+      <section id="tab-shop" class="hidden">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-2xl font-black text-[#3C3C3C]">TypeLingo Shop</h2>
+            <p class="text-sm font-semibold text-[#777777]">Spend your hard-earned Gems on power-ups.</p>
+          </div>
+          <div class="px-4 py-2 rounded-2xl bg-[#DDF4FF] border-2 border-[#84D8FF] font-black text-[#1CB0F6] flex items-center gap-1.5">
+            <span>💎</span>
+            <span id="shop-gem-count">420</span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-4">
+          <!-- Heart Refill -->
+          <div class="border-2 border-[#E5E5E5] rounded-2xl p-5 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <div class="text-4xl">❤️</div>
+              <div>
+                <h3 class="font-extrabold text-base text-[#3C3C3C]">Refill Hearts</h3>
+                <p class="text-xs font-semibold text-[#777777]">Get full hearts so you never worry about typos during tough lessons.</p>
+              </div>
+            </div>
+            <button onclick="buyShopItem('hearts', 100)" class="duo-btn duo-btn-white px-4 py-2.5 rounded-xl font-extrabold text-xs uppercase tracking-wider text-[#1CB0F6] shrink-0">
+              💎 100
+            </button>
+          </div>
+
+          <!-- Streak Freeze -->
+          <div class="border-2 border-[#E5E5E5] rounded-2xl p-5 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <div class="text-4xl">🧊</div>
+              <div>
+                <h3 class="font-extrabold text-base text-[#3C3C3C]">Streak Freeze <span id="shop-freeze-badge" class="ml-1 text-xs text-[#1CB0F6]">(Equipped: 1)</span></h3>
+                <p class="text-xs font-semibold text-[#777777]">Protects your Day Streak if you miss a day of typing practice.</p>
+              </div>
+            </div>
+            <button onclick="buyShopItem('freeze', 200)" class="duo-btn duo-btn-white px-4 py-2.5 rounded-xl font-extrabold text-xs uppercase tracking-wider text-[#1CB0F6] shrink-0">
+              💎 200
+            </button>
+          </div>
+
+          <!-- Double XP Boost -->
+          <div class="border-2 border-[#E5E5E5] rounded-2xl p-5 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <div class="text-4xl">⚡</div>
+              <div>
+                <h3 class="font-extrabold text-base text-[#3C3C3C]">2X XP Boost <span id="shop-boost-status" class="ml-1 text-xs text-[#A568CC]"></span></h3>
+                <p class="text-xs font-semibold text-[#777777]">Earn double XP on every completed lesson and Ramp Up challenge!</p>
+              </div>
+            </div>
+            <button onclick="buyShopItem('doubleXp', 150)" class="duo-btn duo-btn-white px-4 py-2.5 rounded-xl font-extrabold text-xs uppercase tracking-wider text-[#1CB0F6] shrink-0">
+              💎 150
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- =============================================================== -->
+      <!-- TAB 6: PROFILE & COACH CAST GALLERY                             -->
+      <!-- =============================================================== -->
+      <section id="tab-profile" class="hidden">
+        <div class="border-2 border-[#E5E5E5] rounded-3xl p-6 mb-6 flex flex-col sm:flex-row items-center gap-6">
+          <div class="w-24 h-24 rounded-full bg-[#58CC02] border-b-4 border-[#46A302] flex items-center justify-center text-5xl shadow-md">
+            🦉
+          </div>
+          <div class="text-center sm:text-left flex-1">
+            <h2 class="text-2xl font-black text-[#3C3C3C]">Typing Learner</h2>
+            <p class="text-xs font-bold text-[#777777]">Joined November 2026 • Touch Typing Path</p>
+            <div class="grid grid-cols-3 gap-3 mt-4">
+              <div class="border-2 border-[#E5E5E5] rounded-2xl p-2.5 text-center">
+                <div class="text-lg font-black text-[#FF9600]" id="prof-streak">5</div>
+                <div class="text-[11px] font-bold text-[#777777]">Day Streak</div>
+              </div>
+              <div class="border-2 border-[#E5E5E5] rounded-2xl p-2.5 text-center">
+                <div class="text-lg font-black text-[#FFC800]" id="prof-xp">640</div>
+                <div class="text-[11px] font-bold text-[#777777]">Total XP</div>
+              </div>
+              <div class="border-2 border-[#E5E5E5] rounded-2xl p-2.5 text-center">
+                <div class="text-lg font-black text-[#1CB0F6]" id="prof-best-wpm">42 WPM</div>
+                <div class="text-[11px] font-bold text-[#777777]">Best Speed</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="text-lg font-black text-[#3C3C3C] mb-1">Meet Your Typing Coaches</h3>
+        <p class="text-xs font-semibold text-[#777777] mb-4">Tap any coach below to make them your primary lesson helper, or keep All Characters rotating!</p>
+        <div id="coach-gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Populated via JS -->
+        </div>
+      </section>
+
+      <!-- =============================================================== -->
+      <!-- TAB 7: AUTHENTIC DUOLINGO SETTINGS                              -->
+      <!-- =============================================================== -->
+      <section id="tab-settings" class="hidden">
+        <h2 class="text-2xl font-black text-[#3C3C3C] mb-1">Settings</h2>
+        <p class="text-sm font-semibold text-[#777777] mb-6">Customize your TypeLingo lessons, milestone frequency, and keyboard assists.</p>
+
+        <div class="border-2 border-[#E5E5E5] rounded-2xl divide-y-2 divide-[#E5E5E5]">
+          
+          <!-- Milestone Challenge Pacing (Every 5 vs Every 10) -->
+          <div class="p-4 sm:p-5 flex items-center justify-between gap-4">
+            <div>
+              <div class="font-extrabold text-sm text-[#3C3C3C]">Timed Milestone Challenge Frequency</div>
+              <div class="text-xs font-semibold text-[#777777]">How often Ramp Up / Match Madness challenges appear on your path</div>
+            </div>
+            <select id="set-pacing" onchange="updateSetting('pacing', Number(this.value))" class="border-2 border-[#E5E5E5] rounded-xl px-3 py-2 text-xs font-extrabold bg-white cursor-pointer">
+              <option value="5">Every 5th Step</option>
+              <option value="10">Every 10th Step</option>
+            </select>
+          </div>
+
+          <!-- Coach Character Selection -->
+          <div class="p-4 sm:p-5 flex items-center justify-between gap-4">
+            <div>
+              <div class="font-extrabold text-sm text-[#3C3C3C]">Lesson Helper Character</div>
+              <div class="text-xs font-semibold text-[#777777]">Choose who cheers you on and gives typing tips</div>
+            </div>
+            <select id="set-coach" onchange="updateSetting('preferredCoach', this.value)" class="border-2 border-[#E5E5E5] rounded-xl px-3 py-2 text-xs font-extrabold bg-white cursor-pointer">
+              <option value="all">All Coaches (Rotating)</option>
+              <option value="pip">Pip the Owl</option>
+              <option value="zara">Zara</option>
+              <option value="max">Coach Max</option>
+              <option value="bea">Bea</option>
+              <option value="eddy">Professor Eddy</option>
+            </select>
+          </div>
+
+          <!-- Sound Effects Toggle -->
+          <div class="p-4 sm:p-5 flex items-center justify-between gap-4">
+            <div>
+              <div class="font-extrabold text-sm text-[#3C3C3C]">Sound Effects & Chimes</div>
+              <div class="text-xs font-semibold text-[#777777]">Play Duolingo-style key clicks, error thuds, and celebration fanfares</div>
+            </div>
+            <input type="checkbox" id="set-sound" onchange="updateSetting('sound', this.checked)" class="w-5 h-5 accent-[#58CC02] cursor-pointer">
+          </div>
+
+          <!-- Visual Guide Keyboard Toggle -->
+          <div class="p-4 sm:p-5 flex items-center justify-between gap-4">
+            <div>
+              <div class="font-extrabold text-sm text-[#3C3C3C]">Visual On-Screen Keyboard</div>
+              <div class="text-xs font-semibold text-[#777777]">Show live key highlights during lessons</div>
+            </div>
+            <input type="checkbox" id="set-keyboard" onchange="updateSetting('showKeyboard', this.checked)" class="w-5 h-5 accent-[#58CC02] cursor-pointer">
+          </div>
+
+          <!-- Finger-Zone Color Hints -->
+          <div class="p-4 sm:p-5 flex items-center justify-between gap-4">
+            <div>
+              <div class="font-extrabold text-sm text-[#3C3C3C]">Finger-Zone Color Hints</div>
+              <div class="text-xs font-semibold text-[#777777]">Color-code keycaps so you know which finger hits each key</div>
+            </div>
+            <input type="checkbox" id="set-finger-colors" onchange="updateSetting('fingerColors', this.checked)" class="w-5 h-5 accent-[#58CC02] cursor-pointer">
+          </div>
+
+          <!-- Practice Mode (Infinite Hearts) -->
+          <div class="p-4 sm:p-5 flex items-center justify-between gap-4">
+            <div>
+              <div class="font-extrabold text-sm text-[#3C3C3C]">Zen / Practice Hearts Mode</div>
+              <div class="text-xs font-semibold text-[#777777]">Never lose hearts on typos while learning new keys</div>
+            </div>
+            <input type="checkbox" id="set-zen-hearts" onchange="updateSetting('zenHearts', this.checked)" class="w-5 h-5 accent-[#58CC02] cursor-pointer">
+          </div>
+
+          <!-- Daily XP Goal -->
+          <div class="p-4 sm:p-5 flex items-center justify-between gap-4">
+            <div>
+              <div class="font-extrabold text-sm text-[#3C3C3C]">Daily XP Goal</div>
+              <div class="text-xs font-semibold text-[#777777]">Set your daily typing training commitment</div>
+            </div>
+            <select id="set-daily-goal" onchange="updateSetting('dailyGoal', Number(this.value))" class="border-2 border-[#E5E5E5] rounded-xl px-3 py-2 text-xs font-extrabold bg-white cursor-pointer">
+              <option value="20">Casual (20 XP)</option>
+              <option value="50">Regular (50 XP)</option>
+              <option value="100">Serious (100 XP)</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 3. RIGHT STICKY WIDGET SIDEBAR (Desktop) -->
+    <aside class="hidden lg:flex flex-col w-[340px] shrink-0 px-5 py-6 sticky top-0 h-screen gap-5 overflow-y-auto bg-white">
+      
+      <!-- Top Status Counters Row (Course, Streak, Gems, Hearts) -->
+      <div class="flex items-center justify-between gap-2 py-1">
+        <!-- Course Flag / Keyboard Selector -->
+        <button onclick="cycleCourseUnit()" title="Switch Typing Course Unit" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl hover:bg-[#F7F7F7] font-extrabold text-xs text-[#3C3C3C] border-2 border-[#E5E5E5]">
+          <span class="text-base">⌨️</span>
+          <span id="right-course-badge">UNIT 1</span>
+        </button>
+
+        <!-- Day Streak -->
+        <div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl hover:bg-[#F7F7F7] font-extrabold text-sm text-[#FF9600]" title="Day Streak">
+          <span class="text-lg">🔥</span>
+          <span id="stat-streak">5</span>
+        </div>
+
+        <!-- Gems -->
+        <div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl hover:bg-[#F7F7F7] font-extrabold text-sm text-[#1CB0F6]" title="Gems">
+          <span class="text-lg">💎</span>
+          <span id="stat-gems">420</span>
+        </div>
+
+        <!-- Hearts -->
+        <button onclick="refillHeartsPrompt()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl hover:bg-[#F7F7F7] font-extrabold text-sm text-[#FF4B4B]" title="Hearts (Click to Refill)">
+          <span class="text-lg">❤️</span>
+          <span id="stat-hearts">5</span>
+        </button>
+      </div>
+
+      <!-- Daily Quests Card -->
+      <div class="border-2 border-[#E5E5E5] rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-extrabold text-base text-[#3C3C3C]">Daily Quests</h3>
+          <button onclick="switchTab('quests')" class="text-xs font-extrabold uppercase tracking-wider text-[#1CB0F6] hover:underline">View All</button>
+        </div>
+        <div id="right-quests-preview" class="flex flex-col gap-3.5">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+
+      <!-- Diamond League Mini-Leaderboard Card -->
+      <div class="border-2 border-[#E5E5E5] rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-extrabold text-base text-[#3C3C3C]">Diamond League</h3>
+          <button onclick="switchTab('leaderboards')" class="text-xs font-extrabold uppercase tracking-wider text-[#1CB0F6] hover:underline">View League</button>
+        </div>
+        <div id="right-leaderboard-preview" class="flex flex-col gap-2">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+
+      <!-- Quick Coach Card -->
+      <div class="border-2 border-[#E5E5E5] rounded-2xl p-4 flex items-center gap-3 bg-[#F7F7F7]">
+        <div id="right-coach-avatar" class="w-12 h-12 shrink-0"></div>
+        <div>
+          <div class="text-xs font-extrabold text-[#3C3C3C]" id="right-coach-name">Pip the Owl</div>
+          <p class="text-[11px] font-semibold text-[#777777] leading-snug" id="right-coach-tip">Keep your index fingers resting on the bumps on F and J!</p>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- MOBILE BOTTOM NAVIGATION BAR -->
+    <nav class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t-2 border-[#E5E5E5] flex items-center justify-around py-2 z-30">
+      <button onclick="switchTab('learn')" class="flex flex-col items-center text-xs font-extrabold text-[#1CB0F6]">
+        <span class="text-xl">🏠</span>
+        <span>Learn</span>
+      </button>
+      <button onclick="switchTab('practice')" class="flex flex-col items-center text-xs font-extrabold text-[#777777]">
+        <span class="text-xl">🏋️</span>
+        <span>Practice</span>
+      </button>
+      <button onclick="switchTab('leaderboards')" class="flex flex-col items-center text-xs font-extrabold text-[#777777]">
+        <span class="text-xl">🏆</span>
+        <span>League</span>
+      </button>
+      <button onclick="switchTab('shop')" class="flex flex-col items-center text-xs font-extrabold text-[#777777]">
+        <span class="text-xl">🏪</span>
+        <span>Shop</span>
+      </button>
+      <button onclick="switchTab('settings')" class="flex flex-col items-center text-xs font-extrabold text-[#777777]">
+        <span class="text-xl">⚙️</span>
+        <span>Settings</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- FULL-SCREEN DISTRACTION-FREE DUOLINGO LESSON & TIMED CHALLENGE VIEW   -->
+  <!-- ===================================================================== -->
+  <div id="lesson-overlay" class="hidden fixed inset-0 z-40 bg-white flex flex-col">
+    
+    <!-- Top Progress & Hearts Header -->
+    <div class="max-w-4xl w-full mx-auto px-4 sm:px-6 pt-5 pb-3 flex items-center gap-4">
+      <button onclick="closeLessonOverlay()" aria-label="Quit Lesson" class="text-[#AFAFAF] hover:text-[#777777] text-2xl font-black leading-none p-1">
+        ✕
+      </button>
+
+      <!-- Segmented / Smooth Green Progress Bar -->
+      <div class="flex-1 h-4 bg-[#E5E5E5] rounded-full overflow-hidden relative">
+        <div id="lesson-progress-fill" class="h-full bg-[#58CC02] rounded-full transition-all duration-200 relative" style="width: 0%;">
+          <div class="absolute top-1 left-2 right-2 h-1 bg-white/35 rounded-full"></div>
+        </div>
+      </div>
+
+      <!-- Timed Challenge Clock (Visible only on Ramp Up / Match Madness nodes) -->
+      <div id="challenge-timer-pill" class="hidden items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF2FF] border-2 border-[#CE82FF] text-[#A568CC] font-black text-sm font-mono-code">
+        <span>⏱️</span>
+        <span id="challenge-clock-text">45.0s</span>
+      </div>
+
+      <!-- Hearts Counter -->
+      <div class="flex items-center gap-1.5 font-extrabold text-[#FF4B4B] text-base">
+        <span>❤️</span>
+        <span id="lesson-hearts-text">5</span>
+      </div>
+    </div>
+
+    <!-- Main Lesson Stage -->
+    <div class="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 py-3 flex flex-col justify-between overflow-y-auto">
+      
+      <div>
+        <!-- Exercise Prompt Header & Live Telemetry -->
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <h2 id="exercise-instruction" class="text-xl sm:text-2xl font-black text-[#3C3C3C]">Type this line accurately</h2>
+          <div class="flex items-center gap-2 text-xs font-extrabold">
+            <span class="px-3 py-1 rounded-full bg-[#DDF4FF] text-[#1899D6] font-mono-code"><span id="lesson-wpm">0</span> WPM</span>
+            <span class="px-3 py-1 rounded-full bg-[#D7FFB8] text-[#46A302] font-mono-code"><span id="lesson-acc">100</span>% ACC</span>
+          </div>
+        </div>
+
+        <!-- Duolingo Character + Speech Bubble Prompt -->
+        <div class="flex items-center gap-4 mb-5">
+          <div id="lesson-coach-svg" class="w-20 h-20 sm:w-24 sm:h-24 shrink-0 transition-transform duration-200">
+            <!-- Expressive Character SVG injected here -->
+          </div>
+          <div class="speech-bubble px-4 py-3 flex-1 shadow-sm">
+            <div class="text-[11px] font-black uppercase tracking-wider text-[#1CB0F6] mb-0.5" id="lesson-coach-name">Pip the Owl</div>
+            <p id="lesson-coach-dialogue" class="text-sm sm:text-base font-bold text-[#3C3C3C]">
+              Rest your fingers on F and J, then type smoothly without looking down!
+            </p>
+          </div>
+        </div>
+
+        <!-- Typing Prompt Card -->
+        <div id="typing-stage-box" onclick="focusLessonInput()" class="border-2 border-[#E5E5E5] border-b-4 rounded-2xl p-5 sm:p-7 bg-[#FAFAFA] cursor-text relative mb-5 transition-colors">
+          <div id="typing-prompt-chars" class="font-mono-code text-xl sm:text-3xl font-bold leading-relaxed tracking-wide break-words flex flex-wrap items-center gap-y-1.5 min-h-[76px]">
+            <!-- Characters rendered here -->
+          </div>
+          <input type="text" id="lesson-hidden-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="opacity-0 absolute inset-0 w-full h-full cursor-text" />
+        </div>
+      </div>
+
+      <!-- Interactive Duolingo Tactile Keyboard Guide -->
+      <div id="lesson-keyboard-wrapper" class="pb-2">
+        <div class="flex items-center justify-between text-xs font-bold text-[#777777] mb-2 px-1">
+          <span id="finger-guide-label">Next Finger: Left Index (F)</span>
+          <span class="hidden sm:inline">Press keys on your physical keyboard</span>
+        </div>
+        <div id="duo-visual-keyboard" class="flex flex-col gap-1.5 max-w-2xl mx-auto">
+          <!-- Keycaps generated via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Feedback Footer Bar (Duolingo Signature Check / Status Strip) -->
+    <div id="lesson-bottom-bar" class="border-t-2 border-[#E5E5E5] bg-white px-4 sm:px-8 py-4">
+      <div class="max-w-3xl mx-auto flex items-center justify-between gap-4">
+        <button onclick="skipCurrentExercise()" class="duo-btn duo-btn-white px-5 py-3 rounded-2xl font-extrabold text-xs uppercase tracking-wider text-[#777777]">
+          Skip
+        </button>
+        <div class="text-xs font-bold text-[#777777] hidden sm:block" id="lesson-step-counter">
+          Exercise 1 of 4
+        </div>
+        <button onclick="focusLessonInput()" class="duo-btn duo-btn-green px-7 py-3 rounded-2xl font-extrabold text-xs uppercase tracking-wider">
+          Keep Typing
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- GUIDEBOOK MODAL (FINGER PLACEMENT & POSTURE GUIDE)                    -->
+  <!-- ===================================================================== -->
+  <div id="guidebook-modal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 border-2 border-[#E5E5E5] shadow-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">📘</span>
+          <h3 id="guidebook-title" class="text-xl font-black text-[#3C3C3C]">Unit 1 Guidebook</h3>
+        </div>
+        <button onclick="closeGuidebook()" class="text-[#AFAFAF] hover:text-[#3C3C3C] text-xl font-black">✕</button>
+      </div>
+      <div id="guidebook-body" class="space-y-4 text-sm text-[#3C3C3C]">
+        <!-- Populated dynamically -->
+      </div>
+      <button onclick="closeGuidebook()" class="duo-btn duo-btn-green w-full py-3.5 rounded-2xl font-extrabold text-sm uppercase tracking-wider mt-6">
+        Got It!
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- LESSON / CHALLENGE COMPLETE CELEBRATION SCREEN                        -->
+  <!-- ===================================================================== -->
+  <div id="complete-modal" class="hidden fixed inset-0 z-50 bg-white flex flex-col items-center justify-center p-6 text-center">
+    <div class="max-w-md w-full">
+      <div id="complete-mascot-svg" class="w-32 h-32 mx-auto mb-3 animate-duo-float"></div>
+      <h2 id="complete-headline" class="text-3xl font-black text-[#FFC800] mb-1">Lesson Complete!</h2>
+      <p id="complete-subtext" class="text-sm font-bold text-[#777777] mb-6">You're building serious muscle memory!</p>
+
+      <!-- Duolingo Stat Cards -->
+      <div class="grid grid-cols-3 gap-3 mb-8">
+        <div class="rounded-2xl border-2 border-[#FFC800] bg-[#FFFBEB] overflow-hidden">
+          <div class="bg-[#FFC800] text-white text-[11px] font-black uppercase py-1">Total XP</div>
+          <div id="comp-xp" class="py-3 text-xl font-black text-[#E5A500]">+25 XP</div>
+        </div>
+        <div class="rounded-2xl border-2 border-[#58CC02] bg-[#F3FFE8] overflow-hidden">
+          <div class="bg-[#58CC02] text-white text-[11px] font-black uppercase py-1">Accuracy</div>
+          <div id="comp-acc" class="py-3 text-xl font-black text-[#46A302]">98%</div>
+        </div>
+        <div class="rounded-2xl border-2 border-[#1CB0F6] bg-[#EDF9FF] overflow-hidden">
+          <div class="bg-[#1CB0F6] text-white text-[11px] font-black uppercase py-1">Speed</div>
+          <div id="comp-wpm" class="py-3 text-xl font-black text-[#1899D6]">34 WPM</div>
+        </div>
+      </div>
+
+      <button onclick="closeCompleteModal()" class="duo-btn duo-btn-green w-full py-4 rounded-2xl font-extrabold text-base uppercase tracking-wider">
+        Continue
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- JAVASCRIPT ENGINE                                                     -->
+  <!-- ===================================================================== -->
+  <script>
+    // =========================================================================
+    // 1. DUOLINGO SOUND ENGINE (Cheerful Chimes, Key Clicks, Gentle Thuds)
+    // =========================================================================
+    class DuoSound {
+      constructor() {
+        this.ctx = null;
+      }
+      ensure() {
+        if (!state.settings.sound) return false;
+        if (!this.ctx) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (AC) this.ctx = new AC();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+        return Boolean(this.ctx);
+      }
+      keyTap(combo = 0) {
+        if (!this.ensure()) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        const freq = 540 + Math.min(combo * 8, 220);
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(180, this.ctx.currentTime + 0.04);
+        gain.gain.setValueAtTime(0.11, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.045);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.05);
+      }
+      errorThud() {
+        if (!this.ensure()) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(175, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(115, this.ctx.currentTime + 0.14);
+        gain.gain.setValueAtTime(0.16, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.16);
+      }
+      stepChime() {
+        if (!this.ensure()) return;
+        const notes = [587.33, 880]; // D5 -> A5 Duolingo exercise chime
+        notes.forEach((f, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          const t = this.ctx.currentTime + i * 0.07;
+          osc.frequency.setValueAtTime(f, t);
+          gain.gain.setValueAtTime(0.14, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.24);
+        });
+      }
+      fanfare() {
+        if (!this.ensure()) return;
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((f, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          const t = this.ctx.currentTime + i * 0.09;
+          osc.frequency.setValueAtTime(f, t);
+          gain.gain.setValueAtTime(0.16, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.34);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.35);
+        });
+      }
+    }
+    const duoSound = new DuoSound();
+
+    // =========================================================================
+    // 2. DUOLINGO CHARACTER CAST (ORIGINAL VECTOR SVG ILLUSTRATIONS)
+    // =========================================================================
+    const COACHES = {
+      pip: {
+        id: 'pip',
+        name: 'Pip the Owl',
+        role: 'Posture & Streak Mascot',
+        bio: 'Your cheerful green owl guide who keeps your daily streak alive and reminds you not to peek at your hands!',
+        lines: {
+          intro: 'Hoot! Rest your index fingers on the F and J bumps and type steadily!',
+          streak: 'Look at that streak! Keep your wrists floating lightly above the desk.',
+          typo: 'Whoops! Slow down just a tiny bit—accuracy builds real speed!',
+          challenge: 'Time to shine! Clear every word before the clock runs out!'
+        },
+        svg: (mood = 'happy') => `
+          <svg viewBox="0 0 100 100" class="w-full h-full">
+            <ellipse cx="50" cy="56" rx="34" ry="36" fill="#58CC02"/>
+            <ellipse cx="50" cy="64" rx="22" ry="22" fill="#89E219"/>
+            <path d="M20 30 L32 38 L24 46 Z" fill="#46A302"/>
+            <path d="M80 30 L68 38 L76 46 Z" fill="#46A302"/>
+            <circle cx="37" cy="46" r="13" fill="#FFFFFF"/>
+            <circle cx="63" cy="46" r="13" fill="#FFFFFF"/>
+            <circle cx="39" cy="46" r="6" fill="#3C3C3C"/>
+            <circle cx="61" cy="46" r="6" fill="#3C3C3C"/>
+            <circle cx="41" cy="44" r="2" fill="#FFFFFF"/>
+            <circle cx="63" cy="44" r="2" fill="#FFFFFF"/>
+            <polygon points="44,54 56,54 50,64" fill="#FF9600"/>
+            ${mood === 'cheer' ? '<path d="M12 52 Q20 35 26 55" stroke="#46A302" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M88 52 Q80 35 74 55" stroke="#46A302" stroke-width="7" fill="none" stroke-linecap="round"/>' : ''}
+          </svg>`
+      },
+      zara: {
+        id: 'zara',
+        name: 'Zara',
+        role: 'Accuracy Critic',
+        bio: 'Dry-witted, purple-haired perfectionist who is secretly impressed whenever you hit 98%+ accuracy.',
+        lines: {
+          intro: 'Try not to smash the keyboard like a caveman. Clean, light taps.',
+          streak: 'Okay, I admit it. That rhythm was actually pretty clean.',
+          typo: 'That was definitely the wrong key. Breathe and reset.',
+          challenge: 'A timed sprint? Whatever. Just show the clock who is boss.'
+        },
+        svg: () => `
+          <svg viewBox="0 0 100 100" class="w-full h-full">
+            <path d="M22 48 C22 20, 78 20, 78 48 L82 82 L18 82 Z" fill="#A568CC"/>
+            <circle cx="50" cy="52" r="24" fill="#FDE2C4"/>
+            <path d="M26 46 Q50 26 74 46 L74 34 Q50 18 26 34 Z" fill="#CE82FF"/>
+            <line x1="35" y1="47" x2="45" y2="47" stroke="#3C3C3C" stroke-width="3.5" stroke-linecap="round"/>
+            <line x1="55" y1="47" x2="65" y2="47" stroke="#3C3C3C" stroke-width="3.5" stroke-linecap="round"/>
+            <circle cx="40" cy="51" r="3" fill="#3C3C3C"/>
+            <circle cx="60" cy="51" r="3" fill="#3C3C3C"/>
+            <line x1="44" y1="64" x2="56" y2="63" stroke="#3C3C3C" stroke-width="3" stroke-linecap="round"/>
+          </svg>`
+      },
+      max: {
+        id: 'max',
+        name: 'Coach Max',
+        role: 'WPM Speed Trainer',
+        bio: 'High-energy headband-wearing coach who treats every typing sprint like an Olympic gold medal race!',
+        lines: {
+          intro: 'LET’S GO! Fast fingers, loose shoulders—let’s crush this drill!',
+          streak: 'BOOM! Feel that speed?! Keep pushing your WPM!',
+          typo: 'Shake it off, champ! Reset your fingers and keep sprinting!',
+          challenge: 'RAMP UP TIME! Give me 110% speed right now!'
+        },
+        svg: () => `
+          <svg viewBox="0 0 100 100" class="w-full h-full">
+            <circle cx="50" cy="52" r="27" fill="#F9C99B"/>
+            <path d="M24 38 Q50 16 76 38" fill="#5C3A21"/>
+            <rect x="23" y="34" width="54" height="9" rx="4" fill="#FF4B4B"/>
+            <circle cx="40" cy="50" r="3.5" fill="#3C3C3C"/>
+            <circle cx="60" cy="50" r="3.5" fill="#3C3C3C"/>
+            <path d="M39 61 Q50 72 61 61" stroke="#3C3C3C" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          </svg>`
+      },
+      bea: {
+        id: 'bea',
+        name: 'Bea',
+        role: 'Finger-Zone Strategist',
+        bio: 'Organized, bright, and detail-oriented—Bea helps you master top-row and bottom-row finger reaches.',
+        lines: {
+          intro: 'Check the color-coded keys below so each finger stays in its lane!',
+          streak: 'Spot-on finger placement! You didn’t even hesitate!',
+          typo: 'Oops! Return that finger back to the home row and try again.',
+          challenge: 'Focus on clean transitions between every single word!'
+        },
+        svg: () => `
+          <svg viewBox="0 0 100 100" class="w-full h-full">
+            <circle cx="26" cy="32" r="12" fill="#3C3C3C"/>
+            <circle cx="74" cy="32" r="12" fill="#3C3C3C"/>
+            <circle cx="50" cy="54" r="25" fill="#B97A57"/>
+            <path d="M26 46 Q50 24 74 46" fill="#3C3C3C"/>
+            <circle cx="41" cy="52" r="3.5" fill="#FFFFFF"/>
+            <circle cx="59" cy="52" r="3.5" fill="#FFFFFF"/>
+            <circle cx="41" cy="52" r="2" fill="#1E1E1E"/>
+            <circle cx="59" cy="52" r="2" fill="#1E1E1E"/>
+            <path d="M42 63 Q50 70 58 63" stroke="#FFFFFF" stroke-width="3" fill="none" stroke-linecap="round"/>
+          </svg>`
+      },
+      eddy: {
+        id: 'eddy',
+        name: 'Professor Eddy',
+        role: 'Punctuation & Code Mentor',
+        bio: 'Friendly brown bear in glasses who breaks down Shift keys, numbers, and tricky programming symbols.',
+        lines: {
+          intro: 'Use the opposite hand’s pinky for the Shift key—smooth and balanced!',
+          streak: 'Splendid form! Even complex symbols are no match for you.',
+          typo: 'Take a moment to spot the key position, then strike cleanly.',
+          challenge: 'Stay calm under pressure—steady rhythm beats frantic rushing!'
+        },
+        svg: () => `
+          <svg viewBox="0 0 100 100" class="w-full h-full">
+            <circle cx="28" cy="30" r="11" fill="#8D5524"/>
+            <circle cx="72" cy="30" r="11" fill="#8D5524"/>
+            <circle cx="50" cy="54" r="28" fill="#A46633"/>
+            <ellipse cx="50" cy="62" rx="13" ry="10" fill="#E6B88A"/>
+            <circle cx="50" cy="58" r="4" fill="#3C3C3C"/>
+            <circle cx="39" cy="48" r="8" stroke="#1CB0F6" stroke-width="3" fill="rgba(255,255,255,0.3)"/>
+            <circle cx="61" cy="48" r="8" stroke="#1CB0F6" stroke-width="3" fill="rgba(255,255,255,0.3)"/>
+            <line x1="47" y1="48" x2="53" y2="48" stroke="#1CB0F6" stroke-width="3"/>
+            <circle cx="39" cy="48" r="2.5" fill="#3C3C3C"/>
+            <circle cx="61" cy="48" r="2.5" fill="#3C3C3C"/>
+          </svg>`
+      }
+    };
+
+    // =========================================================================
+    // 3. CURRICULUM UNITS (4 FULL UNITS WITH LESSONS + GUIDEBOOKS)
+    // =========================================================================
+    const UNITS = [
+      {
+        id: 0,
+        section: 'Section 1, Unit 1',
+        title: 'Home Row Foundations',
+        color: '#58CC02',
+        darkColor: '#46A302',
+        guidebook: {
+          title: 'Home Row & Anchor Bumps',
+          tips: [
+            { heading: 'Feel the Tactile Bumps', text: 'Place your left index finger on F and your right index finger on J. Both keys have tiny raised ridges so you never need to look down.' },
+            { heading: 'Home Row Lineup', text: 'Left hand rests on A - S - D - F. Right hand rests on J - K - L - ;. Both thumbs hover lightly over the Spacebar.' }
+          ]
+        },
+        lessons: [
+          { title: 'Anchor Keys: F & J', coach: 'pip', exercises: ['fff jjj fjf jfj', 'ff jj fj jf fjf', 'fff jjj fff jjj fjf'] },
+          { title: 'Inner Keys: D & K', coach: 'bea', exercises: ['dfd kjk dkf jfd', 'fjdk kdjk fdfd jkjk', 'dkf jfd kdf jfk'] },
+          { title: 'Outer Keys: S & L', coach: 'zara', exercises: ['sls lsl sld kls', 'sad lad fall asks', 'salad flask falls'] },
+          { title: 'Full Home Row: A & ;', coach: 'max', exercises: ['all fall salad flask', 'dad had salsa alfalfa', 'asks all lads; sad fall'] },
+          { title: 'Center Reach: G & H', coach: 'eddy', exercises: ['fgf jhj fgh jhg', 'glad half flash dash', 'shall flag hall glass'] },
+          { title: 'Home Row Word Flow', coach: 'pip', exercises: ['a sad lad had a salad', 'half a glass falls fast', 'ask dad; all flags flash'] },
+          { title: 'Home Row Precision', coach: 'zara', exercises: ['flasks salads halls', 'gladly dashes slashes', 'alfalfa salsa fall'] },
+          { title: 'Home Row Speed Drill', coach: 'max', exercises: ['fall fast dash flash', 'glad lad had half salad', 'ask all; fall flags'] },
+          { title: 'Home Row Mastery', coach: 'bea', exercises: ['salsa salad flask glass', 'half dash flash shall', 'all dads ask lads'] }
+        ],
+        wordBank: ['fall', 'salad', 'flask', 'asks', 'glad', 'half', 'flash', 'dash', 'shall', 'glass', 'salsa', 'all']
+      },
+      {
+        id: 1,
+        section: 'Section 1, Unit 2',
+        title: 'Top & Bottom Reach',
+        color: '#1CB0F6',
+        darkColor: '#1899D6',
+        guidebook: {
+          title: 'Reaching Up & Down Cleanly',
+          tips: [
+            { heading: 'Snap Back to Home', text: 'When reaching up to E or I, keep your other fingers anchored on the home row and snap back immediately.' },
+            { heading: 'Most Common Vowels', text: 'E, I, O, and U make up huge chunks of English words—mastering them unlocks real sentence typing.' }
+          ]
+        },
+        lessons: [
+          { title: 'Vowels: E & I', coach: 'bea', exercises: ['ded kik dei kid', 'side like file slide', 'desk fields liked sailed'] },
+          { title: 'Top Reaches: R & U', coach: 'max', exercises: ['frf juj fru jur', 'sure fire ruler rude', 'fluid radius surfed'] },
+          { title: 'Top Reaches: T & O', coach: 'pip', exercises: ['ftf lol fto lot', 'fast last lost toast', 'float store solid'] },
+          { title: 'Bottom Row: C & N', coach: 'zara', exercises: ['dcd jnj dcn jnc', 'can scan coin nice', 'since dance action'] },
+          { title: 'Bottom Row: M & V', coach: 'eddy', exercises: ['jmj fvf jmv fvm', 'move time calm voice', 'silver value novel'] },
+          { title: 'Top & Bottom Mix', coach: 'max', exercises: ['the quick brown fox', 'jumps over the lazy dog', 'clean fast typing rhythm'] },
+          { title: 'Common Words Sprint', coach: 'pip', exercises: ['there their within', 'modern person record', 'around every sound'] },
+          { title: 'Double Letter Drills', coach: 'bea', exercises: ['letter better little', 'coffee summer balloon', 'mission success skill'] },
+          { title: 'Unit 2 Fluency Test', coach: 'zara', exercises: ['consistent daily practice', 'builds effortless speed', 'never look at your hands'] }
+        ],
+        wordBank: ['side', 'like', 'slide', 'sure', 'ruler', 'fast', 'toast', 'float', 'dance', 'voice', 'silver', 'letter', 'summer']
+      },
+      {
+        id: 2,
+        section: 'Section 2, Unit 3',
+        title: 'Velocity & Capitals',
+        color: '#CE82FF',
+        darkColor: '#A568CC',
+        guidebook: {
+          title: 'Shift Key Technique & Digraphs',
+          tips: [
+            { heading: 'Opposite-Hand Shift', text: 'To type a capital letter with your left hand (like A or T), hold Right Shift with your right pinky—and vice versa!' },
+            { heading: 'Read Ahead', text: 'Let your eyes read 2–3 letters ahead of the cursor so your fingers flow smoothly without pauses.' }
+          ]
+        },
+        lessons: [
+          { title: 'Opposite Shift Basics', coach: 'eddy', exercises: ['All Fall Salad Ask', 'Jan Feb Mar Apr May', 'Tokyo London Paris'] },
+          { title: 'TH, HE & IN Digraphs', coach: 'max', exercises: ['there within their', 'thinking neither thing', 'nothing something in'] },
+          { title: 'Hand Roll Combos', coach: 'bea', exercises: ['street strong create', 'simply million opinion', 'journey solution mountain'] },
+          { title: 'Punctuation Precision', coach: 'zara', exercises: ['Ready, aim, fire!', 'Wait, stop, and look.', 'Yes! We did it right.'] },
+          { title: 'Apostrophes & Quotes', coach: 'pip', exercises: ["Don't stop now!", "You're doing great.", "It's fast and clean."] },
+          { title: 'Speed Burst Sentences', coach: 'max', exercises: ['Speed comes from rhythm.', 'Keep calm and type on.', 'Focus on clean strokes.'] },
+          { title: 'Capitalized Cities', coach: 'eddy', exercises: ['New York and Toronto', 'Saturn and Jupiter', 'Mount Everest Summit'] },
+          { title: 'High-Tempo Flow', coach: 'zara', exercises: ['Every keystroke counts.', 'Zero panic on errors.', 'Smooth hands win races.'] },
+          { title: 'Velocity Mastery', coach: 'max', exercises: ['Champion typing velocity!', 'Precision under pressure.', 'Diamond League ready!'] }
+        ],
+        wordBank: ['Tokyo', 'London', 'Saturn', 'Ready!', 'Create', 'Simply', 'Journey', 'Rhythm', 'Velocity', 'Precision']
+      },
+      {
+        id: 3,
+        section: 'Section 2, Unit 4',
+        title: 'Numbers & Code Syntax',
+        color: '#FF9600',
+        darkColor: '#CC7800',
+        guidebook: {
+          title: 'Top Number Row & Brackets',
+          tips: [
+            { heading: 'Clean Number Reaches', text: 'Reach straight up from your home-row fingers to hit 1–0 without twisting your wrists.' },
+            { heading: 'Developer Brackets', text: 'Parentheses () and curly braces {} use your right ring and pinky fingers—practice them slowly first!' }
+          ]
+        },
+        lessons: [
+          { title: 'Left Hand Numbers: 1–5', coach: 'eddy', exercises: ['123 451 234 512', '10 25 34 45 51', '24 hours and 15 mins'] },
+          { title: 'Right Hand Numbers: 6–0', coach: 'bea', exercises: ['678 906 789 067', '60 75 89 90 100', 'Level 90 in 2026'] },
+          { title: 'Parentheses & Brackets', coach: 'zara', exercises: ['(a + b) [1, 2, 3]', 'run(x) get[0] set(1)', 'array[index] = (val)'] },
+          { title: 'Operators & Equals', coach: 'max', exercises: ['x = 10; y = 20;', 'if (a == b && c != d)', 'score += 50; rate = 99%'] },
+          { title: 'CamelCase Identifiers', coach: 'pip', exercises: ['getUserData setSpeed', 'dailyGoal maxStreak', 'typeLingoCoachMode'] },
+          { title: 'JSON & Strings', coach: 'eddy', exercises: ['{"xp": 500, "ok": true}', 'name: "Pip", rank: 1', 'status = "ACTIVE";'] },
+          { title: 'Terminal Commands', coach: 'zara', exercises: ['git status && git push', 'npm run build --prod', 'cd projects/typelingo'] },
+          { title: 'Logic & Loops', coach: 'max', exercises: ['for (let i = 0; i < 5; i++)', 'return total * 2;', 'while (active) step();'] },
+          { title: 'Grandmaster Syntax', coach: 'eddy', exercises: ['const win = (wpm >= 60);', 'export default TypeLingo;', '100% Accuracy Achieved!'] }
+        ],
+        wordBank: ['const', 'return', 'array[0]', 'run(x)', 'score=100', 'true', 'git', 'build', '2026', 'TypeLingo']
+      }
+    ];
+
+    // =========================================================================
+    // 4. APPLICATION STATE & LOCAL STORAGE
+    // =========================================================================
+    const DEFAULT_STATE = {
+      xp: 640,
+      dailyXp: 35,
+      streak: 5,
+      gems: 420,
+      hearts: 5,
+      freezes: 1,
+      doubleXp: false,
+      bestWpm: 42,
+      currentUnit: 0,
+      completedNodes: {
+        0: { 0: true, 1: true },
+        1: {},
+        2: {},
+        3: {}
+      },
+      mistakeCounts: { e: 3, r: 2, t: 2, i: 1 },
+      questsCompleted: {
+        xp50: false,
+        acc95: 1,
+        challenge1: false
+      },
+      settings: {
+        pacing: 5, // 5 = Every 5th node is a Timed Milestone Challenge; 10 = Every 10th node
+        preferredCoach: 'all',
+        sound: true,
+        showKeyboard: true,
+        fingerColors: true,
+        zenHearts: false,
+        dailyGoal: 50
+      }
+    };
+
+    let state = loadState();
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem('typelingo_save_v1');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          return {
+            ...DEFAULT_STATE,
+            ...parsed,
+            settings: { ...DEFAULT_STATE.settings, ...(parsed.settings || {}) },
+            completedNodes: { ...DEFAULT_STATE.completedNodes, ...(parsed.completedNodes || {}) }
+          };
+        }
+      } catch (e) {
+        console.warn('State load fallback:', e);
+      }
+      return JSON.parse(JSON.stringify(DEFAULT_STATE));
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem('typelingo_save_v1', JSON.stringify(state));
+      } catch (e) {
+        console.warn('State save warning:', e);
+      }
+    }
+
+    // =========================================================================
+    // 5. BUILD WINDING PATH NODES (LESSONS + TREASURE CHESTS + TIMED CHALLENGES)
+    // =========================================================================
+    function buildUnitPathNodes(unitIdx) {
+      const unit = UNITS[unitIdx];
+      const lessons = unit.lessons;
+      const pacing = state.settings.pacing; // 5 or 10
+      const lessonsPerMilestone = pacing - 1; // 4 or 9
+      const nodes = [];
+
+      for (let i = 0; i < lessons.length; i++) {
+        nodes.push({
+          type: 'lesson',
+          lesson: lessons[i],
+          index: nodes.length
+        });
+
+        // Add a Reward Chest mid-way
+        if (i === 1) {
+          nodes.push({
+            type: 'chest',
+            gems: 35,
+            index: nodes.length
+          });
+        }
+
+        // Every 5th or 10th lesson step: Duolingo Timed Milestone Challenge!
+        if ((i + 1) % lessonsPerMilestone === 0) {
+          nodes.push({
+            type: 'challenge',
+            title: (i + 1) / lessonsPerMilestone === 1 ? 'Ramp Up Sprint' : 'Match Madness Final',
+            wordBank: unit.wordBank,
+            index: nodes.length
+          });
+        }
+      }
+
+      // Ensure final node is always a Legendary Timed Challenge
+      if (nodes[nodes.length - 1].type !== 'challenge') {
+        nodes.push({
+          type: 'challenge',
+          title: 'Unit Trophy Ramp Up',
+          wordBank: unit.wordBank,
+          index: nodes.length
+        });
+      }
+
+      return nodes;
+    }
+
+    // =========================================================================
+    // 6. INITIALIZATION & UI SYNC
+    // =========================================================================
+    function initApp() {
+      syncSettingsUI();
+      syncAllCounters();
+      renderWindingPath();
+      renderRightSidebarWidgets();
+      renderLeaderboards();
+      renderQuests();
+      renderCoachGallery();
+      buildDuoKeyboard();
+      window.addEventListener('resize', drawWindingSvgConnectors);
+    }
+
+    function syncAllCounters() {
+      document.getElementById('stat-streak').textContent = state.streak;
+      document.getElementById('stat-gems').textContent = state.gems;
+      document.getElementById('stat-hearts').textContent = state.settings.zenHearts ? '∞' : state.hearts;
+
+      document.getElementById('mob-streak').textContent = state.streak;
+      document.getElementById('mob-gems').textContent = state.gems;
+      document.getElementById('mob-hearts').textContent = state.settings.zenHearts ? '∞' : state.hearts;
+
+      document.getElementById('shop-gem-count').textContent = state.gems;
+      document.getElementById('shop-freeze-badge').textContent = `(Equipped: ${state.freezes})`;
+      document.getElementById('shop-boost-status').textContent = state.doubleXp ? '(ACTIVE!)' : '';
+
+      document.getElementById('prof-streak').textContent = state.streak;
+      document.getElementById('prof-xp').textContent = state.xp;
+      document.getElementById('prof-best-wpm').textContent = `${state.bestWpm} WPM`;
+
+      document.getElementById('right-course-badge').textContent = `UNIT ${state.currentUnit + 1}`;
+      document.getElementById('unit-pacing-pill').textContent = `Challenge every ${state.settings.pacing}th step`;
+
+      const boostCard = document.getElementById('sidebar-boost-card');
+      if (state.doubleXp) boostCard.classList.remove('hidden');
+      else boostCard.classList.add('hidden');
+    }
+
+    function syncSettingsUI() {
+      document.getElementById('set-pacing').value = String(state.settings.pacing);
+      document.getElementById('set-coach').value = state.settings.preferredCoach;
+      document.getElementById('set-sound').checked = state.settings.sound;
+      document.getElementById('set-keyboard').checked = state.settings.showKeyboard;
+      document.getElementById('set-finger-colors').checked = state.settings.fingerColors;
+      document.getElementById('set-zen-hearts').checked = state.settings.zenHearts;
+      document.getElementById('set-daily-goal').value = String(state.settings.dailyGoal);
+    }
+
+    function updateSetting(key, val) {
+      state.settings[key] = val;
+      saveState();
+      syncAllCounters();
+      if (key === 'pacing') renderWindingPath();
+      if (key === 'preferredCoach') renderRightSidebarWidgets();
+      showToast('⚙️', 'Setting Updated', 'Your preference has been saved.');
+    }
+
+    function switchTab(tabName) {
+      ['learn', 'practice', 'leaderboards', 'quests', 'shop', 'profile', 'settings'].forEach(t => {
+        const el = document.getElementById(`tab-${t}`);
+        if (el) el.classList.add('hidden');
+      });
+      const activeEl = document.getElementById(`tab-${tabName}`);
+      if (activeEl) activeEl.classList.remove('hidden');
+
+      // Update Desktop Nav Pills
+      document.querySelectorAll('#desktop-nav .nav-item').forEach(btn => {
+        if (btn.dataset.nav === tabName) {
+          btn.className = 'nav-item flex items-center gap-4 px-4 py-3 rounded-xl font-extrabold text-sm uppercase tracking-wider border-2 border-[#84D8FF] bg-[#DDF4FF] text-[#1CB0F6]';
+        } else {
+          btn.className = 'nav-item flex items-center gap-4 px-4 py-3 rounded-xl font-extrabold text-sm uppercase tracking-wider border-2 border-transparent text-[#777777] hover:bg-[#F7F7F7]';
+        }
+      });
+
+      if (tabName === 'learn') {
+        renderWindingPath();
+      }
+    }
+
+    function selectUnit(unitIdx) {
+      state.currentUnit = unitIdx;
+      saveState();
+      syncAllCounters();
+      renderWindingPath();
+    }
+
+    function cycleCourseUnit() {
+      const next = (state.currentUnit + 1) % UNITS.length;
+      document.getElementById('unit-switcher').value = String(next);
+      selectUnit(next);
+      showToast('⌨️', `Switched to Unit ${next + 1}`, UNITS[next].title);
+    }
+
+    function showToast(icon, title, msg) {
+      const el = document.getElementById('duo-toast');
+      document.getElementById('toast-icon').textContent = icon;
+      document.getElementById('toast-title').textContent = title;
+      document.getElementById('toast-msg').textContent = msg;
+      el.classList.remove('translate-y-28', 'opacity-0');
+      clearTimeout(window._duoToastTimer);
+      window._duoToastTimer = setTimeout(() => {
+        el.classList.add('translate-y-28', 'opacity-0');
+      }, 2800);
+    }
+
+    // =========================================================================
+    // 7. RENDER WINDING DUOLINGO PATH
+    // =========================================================================
+    let activeUnitNodes = [];
+    let currentPlayingNodeIndex = 0;
+
+    function renderWindingPath() {
+      const unit = UNITS[state.currentUnit];
+      const banner = document.getElementById('unit-banner');
+      banner.style.backgroundColor = unit.color;
+      banner.style.borderColor = unit.darkColor;
+      document.getElementById('unit-section-label').textContent = unit.section;
+      document.getElementById('unit-title-label').textContent = unit.title;
+      document.getElementById('unit-switcher').value = String(state.currentUnit);
+
+      activeUnitNodes = buildUnitPathNodes(state.currentUnit);
+      const completedMap = state.completedNodes[state.currentUnit] || {};
+
+      // Find first incomplete node
+      let activeIdx = activeUnitNodes.findIndex((_, idx) => !completedMap[idx]);
+      if (activeIdx === -1) activeIdx = activeUnitNodes.length - 1;
+
+      const container = document.getElementById('winding-nodes-container');
+      container.innerHTML = '';
+
+      // Authentic Duolingo S-Curve horizontal offsets
+      const sCurveOffsets = [0, 48, 76, 44, 0, -48, -76, -44];
+
+      activeUnitNodes.forEach((node, idx) => {
+        const isDone = Boolean(completedMap[idx]);
+        const isCurrent = idx === activeIdx;
+        const isLocked = !isDone && idx > activeIdx;
+        const offsetX = sCurveOffsets[idx % sCurveOffsets.length];
+
+        const row = document.createElement('div');
+        row.className = 'relative flex flex-col items-center';
+        row.style.transform = `translateX(${offsetX}px)`;
+
+        // Floating "START" Speech Bubble above active node
+        if (isCurrent) {
+          const bubble = document.createElement('div');
+          bubble.className = 'mb-2 px-4 py-1.5 rounded-xl bg-white border-2 border-[#E5E5E5] font-black text-xs uppercase tracking-wider shadow-sm animate-duo-float';
+          bubble.style.color = node.type === 'challenge' ? '#A568CC' : unit.color;
+          bubble.textContent = node.type === 'challenge' ? 'TIMED SPRINT' : 'START';
+          row.appendChild(bubble);
+        }
+
+        // Tactile Circular Node Button
+        const btn = document.createElement('button');
+        btn.className = 'path-node focus:outline-none';
+        btn.dataset.pathIdx = idx;
+
+        if (node.type === 'chest') {
+          btn.style.backgroundColor = isDone ? '#FFC800' : (isLocked ? '#E5E5E5' : '#FFC800');
+          btn.style.borderColor = isDone ? '#E5A500' : (isLocked ? '#CECECE' : '#E5A500');
+          btn.innerHTML = `<span class="text-2xl">${isDone ? '✨' : '🎁'}</span>`;
+          btn.onclick = () => {
+            if (isLocked) {
+              duoSound.errorThud();
+              showToast('🔒', 'Locked Chest', 'Complete the lessons above to unlock these Gems!');
+            } else if (isDone) {
+              showToast('🎁', 'Already Claimed', 'You already opened this treasure chest!');
+            } else {
+              state.gems += node.gems;
+              if (!state.completedNodes[state.currentUnit]) state.completedNodes[state.currentUnit] = {};
+              state.completedNodes[state.currentUnit][idx] = true;
+              saveState();
+              syncAllCounters();
+              duoSound.fanfare();
+              launchConfetti();
+              renderWindingPath();
+              showToast('💎', `+${node.gems} Gems Found!`, 'Treasure chest opened!');
+            }
+          };
+        } else if (node.type === 'challenge') {
+          btn.style.backgroundColor = isDone ? '#FFC800' : (isLocked ? '#E5E5E5' : '#CE82FF');
+          btn.style.borderColor = isDone ? '#E5A500' : (isLocked ? '#CECECE' : '#A568CC');
+          btn.innerHTML = `<span class="text-2xl text-white">${isDone ? '👑' : '⚡'}</span>`;
+          btn.onclick = () => {
+            if (isLocked) {
+              promptJumpAhead(idx);
+            } else {
+              currentPlayingNodeIndex = idx;
+              startMilestoneChallenge(state.currentUnit, false);
+            }
+          };
+        } else {
+          // Standard Lesson Node
+          btn.style.backgroundColor = isDone ? '#FFC800' : (isLocked ? '#E5E5E5' : unit.color);
+          btn.style.borderColor = isDone ? '#E5A500' : (isLocked ? '#CECECE' : unit.darkColor);
+          const iconColor = isLocked ? '#AFAFAF' : '#FFFFFF';
+          btn.innerHTML = isDone
+            ? `<svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`
+            : `<svg class="w-8 h-8" style="color:${iconColor}" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
+
+          btn.onclick = () => {
+            if (isLocked) {
+              promptJumpAhead(idx);
+            } else {
+              currentPlayingNodeIndex = idx;
+              launchStandardLesson(node.lesson);
+            }
+          };
+        }
+
+        row.appendChild(btn);
+
+        // Node Title Tag
+        const caption = document.createElement('span');
+        caption.className = 'mt-1.5 text-xs font-extrabold text-[#777777] max-w-[150px] text-center leading-tight';
+        caption.textContent = node.type === 'chest' ? 'Gem Chest' : (node.type === 'challenge' ? node.title : node.lesson.title);
+        row.appendChild(caption);
+
+        container.appendChild(row);
+      });
+
+      // Decorative Coach Character standing beside the path (just like Duolingo!)
+      const coachSide = document.createElement('div');
+      coachSide.className = 'hidden sm:flex flex-col items-center absolute right-6 top-28 w-24 pointer-events-none opacity-95';
+      coachSide.innerHTML = `
+        <div class="w-24 h-24 animate-duo-float">${COACHES.pip.svg('cheer')}</div>
+        <span class="text-[11px] font-black uppercase tracking-wider text-[#58CC02] bg-[#D7FFB8] px-2.5 py-0.5 rounded-full mt-1">Keep Going!</span>
+      `;
+      container.appendChild(coachSide);
+
+      requestAnimationFrame(drawWindingSvgConnectors);
+    }
+
+    function drawWindingSvgConnectors() {
+      const svg = document.getElementById('winding-path-svg');
+      const wrapper = document.getElementById('winding-path-wrapper');
+      if (!svg || !wrapper || wrapper.offsetParent === null) return;
+
+      const btns = wrapper.querySelectorAll('button[data-path-idx]');
+      if (btns.length < 2) { svg.innerHTML = ''; return; }
+
+      const wRect = wrapper.getBoundingClientRect();
+      let d = '';
+      btns.forEach((b, i) => {
+        const r = b.getBoundingClientRect();
+        const x = r.left - wRect.left + r.width / 2;
+        const y = r.top - wRect.top + r.height / 2;
+        if (i === 0) d += `M ${x} ${y} `;
+        else {
+          const pr = btns[i - 1].getBoundingClientRect();
+          const px = pr.left - wRect.left + pr.width / 2;
+          const py = pr.top - wRect.top + pr.height / 2;
+          const midY = (py + y) / 2;
+          d += `C ${px} ${midY}, ${x} ${midY}, ${x} ${y} `;
+        }
+      });
+
+      svg.innerHTML = `<path d="${d}" fill="none" stroke="#E5E5E5" stroke-width="10" stroke-linecap="round" />`;
+    }
+
+    // Duolingo "Jump Here?" feature so user can unlock any node if desired
+    function promptJumpAhead(targetIdx) {
+      if (!state.completedNodes[state.currentUnit]) state.completedNodes[state.currentUnit] = {};
+      for (let i = 0; i < targetIdx; i++) {
+        state.completedNodes[state.currentUnit][i] = true;
+      }
+      saveState();
+      renderWindingPath();
+      duoSound.stepChime();
+      showToast('🚀', 'Jumped Ahead!', 'Unlocked up to your selected lesson.');
+    }
+
+    // =========================================================================
+    // 8. GUIDEBOOK MODAL & HEARTS REFILL
+    // =========================================================================
+    function openGuidebook() {
+      const unit = UNITS[state.currentUnit];
+      document.getElementById('guidebook-title').textContent = `${unit.section} Guidebook`;
+      const body = document.getElementById('guidebook-body');
+      body.innerHTML = unit.guidebook.tips.map(t => `
+        <div class="border-2 border-[#E5E5E5] rounded-2xl p-4 bg-[#FAFAFA]">
+          <h4 class="font-extrabold text-[#1CB0F6] mb-1">${t.heading}</h4>
+          <p class="font-semibold text-[#3C3C3C] leading-relaxed">${t.text}</p>
+        </div>
+      `).join('');
+      document.getElementById('guidebook-modal').classList.remove('hidden');
+    }
+
+    function closeGuidebook() {
+      document.getElementById('guidebook-modal').classList.add('hidden');
+    }
+
+    function refillHeartsPrompt() {
+      if (state.hearts >= 5) {
+        showToast('❤️', 'Hearts Full!', 'You already have all 5 hearts.');
+        return;
+      }
+      state.hearts = 5;
+      saveState();
+      syncAllCounters();
+      duoSound.stepChime();
+      showToast('❤️', 'Hearts Refilled!', 'Back to 5/5 hearts.');
+    }
+
+    // =========================================================================
+    // 9. VISUAL DUOLINGO TACTILE KEYBOARD
+    // =========================================================================
+    const KB_ROWS = [
+      ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='],
+      ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']'],
+      ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'"],
+      ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'],
+      [' ']
+    ];
+
+    const FINGER_ZONES = {
+      '1': ['Left Pinky', '#FFE5E5'], 'q': ['Left Pinky', '#FFE5E5'], 'a': ['Left Pinky', '#FFE5E5'], 'z': ['Left Pinky', '#FFE5E5'],
+      '2': ['Left Ring', '#FFF3D6'], 'w': ['Left Ring', '#FFF3D6'], 's': ['Left Ring', '#FFF3D6'], 'x': ['Left Ring', '#FFF3D6'],
+      '3': ['Left Middle', '#E2FBE2'], 'e': ['Left Middle', '#E2FBE2'], 'd': ['Left Middle', '#E2FBE2'], 'c': ['Left Middle', '#E2FBE2'],
+      '4': ['Left Index', '#DDF4FF'], '5': ['Left Index', '#DDF4FF'], 'r': ['Left Index', '#DDF4FF'], 't': ['Left Index', '#DDF4FF'],
+      'f': ['Left Index', '#DDF4FF'], 'g': ['Left Index', '#DDF4FF'], 'v': ['Left Index', '#DDF4FF'], 'b': ['Left Index', '#DDF4FF'],
+      '6': ['Right Index', '#F3E5FF'], '7': ['Right Index', '#F3E5FF'], 'y': ['Right Index', '#F3E5FF'], 'u': ['Right Index', '#F3E5FF'],
+      'h': ['Right Index', '#F3E5FF'], 'j': ['Right Index', '#F3E5FF'], 'n': ['Right Index', '#F3E5FF'], 'm': ['Right Index', '#F3E5FF'],
+      '8': ['Right Middle', '#E2FBE2'], 'i': ['Right Middle', '#E2FBE2'], 'k': ['Right Middle', '#E2FBE2'], ',': ['Right Middle', '#E2FBE2'],
+      '9': ['Right Ring', '#FFF3D6'], 'o': ['Right Ring', '#FFF3D6'], 'l': ['Right Ring', '#FFF3D6'], '.': ['Right Ring', '#FFF3D6'],
+      '0': ['Right Pinky', '#FFE5E5'], '-': ['Right Pinky', '#FFE5E5'], '=': ['Right Pinky', '#FFE5E5'], 'p': ['Right Pinky', '#FFE5E5'],
+      '[': ['Right Pinky', '#FFE5E5'], ']': ['Right Pinky', '#FFE5E5'], ';': ['Right Pinky', '#FFE5E5'], "'": ['Right Pinky', '#FFE5E5'], '/': ['Right Pinky', '#FFE5E5'],
+      ' ': ['Thumb (Spacebar)', '#F7F7F7']
+    };
+
+    function buildDuoKeyboard() {
+      const kb = document.getElementById('duo-visual-keyboard');
+      kb.innerHTML = '';
+      KB_ROWS.forEach(row => {
+        const rDiv = document.createElement('div');
+        rDiv.className = 'flex justify-center gap-1 sm:gap-1.5';
+        row.forEach(ch => {
+          const cap = document.createElement('div');
+          const isSpace = ch === ' ';
+          const isBump = ch === 'f' || ch === 'j';
+          cap.dataset.key = ch;
+          cap.className = `duo-keycap ${isSpace ? 'w-44 sm:w-64' : 'w-7 sm:w-10'} h-9 sm:h-11 flex flex-col items-center justify-center font-mono-code font-extrabold text-xs sm:text-sm text-[#3C3C3C]`;
+          cap.innerHTML = `
+            <span>${isSpace ? 'SPACE' : ch.toUpperCase()}</span>
+            ${isBump ? '<span class="w-2.5 h-0.5 bg-[#AFAFAF] rounded-full mt-0.5"></span>' : ''}
+          `;
+          rDiv.appendChild(cap);
+        });
+        kb.appendChild(rDiv);
+      });
+    }
+
+    function updateKeyboardHighlight(targetChar) {
+      const wrapper = document.getElementById('lesson-keyboard-wrapper');
+      if (!state.settings.showKeyboard) {
+        wrapper.classList.add('hidden');
+        return;
+      }
+      wrapper.classList.remove('hidden');
+
+      const lower = (targetChar || '').toLowerCase();
+      document.querySelectorAll('#duo-visual-keyboard .duo-keycap').forEach(el => {
+        const k = el.dataset.key;
+        const zone = FINGER_ZONES[k];
+        if (state.settings.fingerColors && zone && k !== lower) {
+          el.style.backgroundColor = zone[1];
+        } else if (k !== lower) {
+          el.style.backgroundColor = '#FFFFFF';
+        }
+
+        if (k === lower) {
+          el.classList.add('active-target');
+          el.style.backgroundColor = '#DDF4FF';
+        } else {
+          el.classList.remove('active-target');
+        }
+      });
+
+      const zoneInfo = FINGER_ZONES[lower];
+      const fingerText = zoneInfo ? zoneInfo[0] : (targetChar && targetChar !== lower ? 'Opposite Pinky (Shift) + Key' : 'Ready');
+      document.getElementById('finger-guide-label').textContent = `Next Key: "${targetChar === ' ' ? 'SPACE' : targetChar}" • ${fingerText}`;
+    }
+
+    // =========================================================================
+    // 10. INTERACTIVE LESSON & TIMED MILESTONE CHALLENGE ENGINE
+    // =========================================================================
+    let activeSession = {
+      mode: 'lesson', // 'lesson' | 'challenge' | 'practice'
+      exercises: [],
+      exIndex: 0,
+      charIndex: 0,
+      totalKeystrokes: 0,
+      errors: 0,
+      combo: 0,
+      startTime: null,
+      wpmTimer: null,
+      challengeTimer: null,
+      timeLeft: 45.0,
+      coachId: 'pip',
+      xpReward: 25,
+      isStandalone: false
+    };
+
+    function pickCoach(preferredFromLesson) {
+      if (state.settings.preferredCoach !== 'all') {
+        return COACHES[state.settings.preferredCoach] || COACHES.pip;
+      }
+      return COACHES[preferredFromLesson] || COACHES.pip;
+    }
+
+    function launchStandardLesson(lessonObj) {
+      const coach = pickCoach(lessonObj.coach);
+      openSession({
+        mode: 'lesson',
+        exercises: [...lessonObj.exercises],
+        coach,
+        xpReward: 25,
+        instruction: lessonObj.title,
+        dialogue: coach.lines.intro,
+        isStandalone: false
+      });
+    }
+
+    function startPracticeDrill(type) {
+      if (type === 'mistakes') {
+        const weakEntries = Object.entries(state.mistakeCounts).sort((a, b) => b[1] - a[1]).slice(0, 4).map(e => e[0]);
+        const keys = weakEntries.length ? weakEntries : ['e', 'r', 't', 'i'];
+        const drills = [
+          `${keys[0]}${keys[1]}${keys[0]} ${keys[2] || 'a'}${keys[3] || 's'} ${keys.join('')}`,
+          `great letter right timer street`,
+          `precision rhythm accuracy focus`
+        ];
+        const coach = pickCoach('zara');
+        openSession({
+          mode: 'practice',
+          exercises: drills,
+          coach,
+          xpReward: 20,
+          instruction: 'Mistake Review Drill',
+          dialogue: `Let's clean up your trickiest keys: ${keys.join(', ').toUpperCase()}!`,
+          isStandalone: true
+        });
+      } else {
+        const coach = pickCoach('max');
+        openSession({
+          mode: 'practice',
+          exercises: [
+            'the quick brown fox jumps over',
+            'fast rhythm builds effortless speed',
+            'every keystroke sharpens your focus'
+          ],
+          coach,
+          xpReward: 25,
+          instruction: 'Rapid Word Sprint',
+          dialogue: coach.lines.streak,
+          isStandalone: true
+        });
+      }
+    }
+
+    function startMilestoneChallenge(unitIdx, isStandalone) {
+      const unit = UNITS[unitIdx];
+      const pool = unit.wordBank;
+      // Generate 6 rapid-fire waves of 3 words each (Ramp Up / Match Madness style!)
+      const waves = Array.from({ length: 6 }, () => {
+        const w1 = pool[Math.floor(Math.random() * pool.length)];
+        const w2 = pool[Math.floor(Math.random() * pool.length)];
+        const w3 = pool[Math.floor(Math.random() * pool.length)];
+        return `${w1} ${w2} ${w3}`;
+      });
+
+      const coach = pickCoach('max');
+      openSession({
+        mode: 'challenge',
+        exercises: waves,
+        coach,
+        xpReward: 40,
+        instruction: 'Ramp Up Timed Challenge ⚡',
+        dialogue: coach.lines.challenge,
+        isStandalone
+      });
+    }
+
+    function openSession({ mode, exercises, coach, xpReward, instruction, dialogue, isStandalone }) {
+      clearInterval(activeSession.wpmTimer);
+      clearInterval(activeSession.challengeTimer);
+
+      activeSession = {
+        mode,
+        exercises,
+        exIndex: 0,
+        charIndex: 0,
+        totalKeystrokes: 0,
+        errors: 0,
+        combo: 0,
+        startTime: null,
+        wpmTimer: null,
+        challengeTimer: null,
+        timeLeft: 45.0,
+        coachId: coach.id,
+        xpReward,
+        isStandalone
+      };
+
+      document.getElementById('lesson-overlay').classList.remove('hidden');
+      document.getElementById('exercise-instruction').textContent = instruction;
+      document.getElementById('lesson-coach-svg').innerHTML = coach.svg('happy');
+      document.getElementById('lesson-coach-name').textContent = coach.name;
+      document.getElementById('lesson-coach-dialogue').textContent = dialogue;
+      document.getElementById('lesson-hearts-text').textContent = state.settings.zenHearts ? '∞' : state.hearts;
+      document.getElementById('lesson-progress-fill').style.width = '0%';
+      document.getElementById('lesson-wpm').textContent = '0';
+      document.getElementById('lesson-acc').textContent = '100';
+
+      const timerPill = document.getElementById('challenge-timer-pill');
+      if (mode === 'challenge') {
+        timerPill.classList.remove('hidden');
+        timerPill.classList.add('flex');
+        document.getElementById('challenge-clock-text').textContent = '45.0s';
+        activeSession.challengeTimer = setInterval(() => {
+          activeSession.timeLeft = Math.max(0, +(activeSession.timeLeft - 0.1).toFixed(1));
+          document.getElementById('challenge-clock-text').textContent = `${activeSession.timeLeft.toFixed(1)}s`;
+          if (activeSession.timeLeft <= 0) {
+            clearInterval(activeSession.challengeTimer);
+            clearInterval(activeSession.wpmTimer);
+            duoSound.errorThud();
+            closeLessonOverlay();
+            showToast('⏱️', "Time's Up!", 'So close! Try the Ramp Up Challenge again.');
+          }
+        }, 100);
+      } else {
+        timerPill.classList.add('hidden');
+        timerPill.classList.remove('flex');
+      }
+
+      renderExercisePrompt();
+      focusLessonInput();
+    }
+
+    function closeLessonOverlay() {
+      clearInterval(activeSession.wpmTimer);
+      clearInterval(activeSession.challengeTimer);
+      document.getElementById('lesson-overlay').classList.add('hidden');
+    }
+
+    function focusLessonInput() {
+      const inp = document.getElementById('lesson-hidden-input');
+      if (inp) {
+        inp.value = '';
+        inp.focus();
+      }
+    }
+
+    function renderExercisePrompt() {
+      const currentStr = activeSession.exercises[activeSession.exIndex] || '';
+      const container = document.getElementById('typing-prompt-chars');
+      container.innerHTML = currentStr.split('').map((ch, idx) => {
+        const displayCh = ch === ' ' ? '&nbsp;' : escapeHtml(ch);
+        if (idx < activeSession.charIndex) {
+          return `<span class="text-[#58CC02]">${displayCh}</span>`;
+        } else if (idx === activeSession.charIndex) {
+          return `<span class="duo-caret bg-[#DDF4FF] text-[#1899D6] rounded px-0.5">${displayCh}</span>`;
+        } else {
+          return `<span class="text-[#AFAFAF]">${displayCh}</span>`;
+        }
+      }).join('');
+
+      document.getElementById('lesson-step-counter').textContent =
+        `Exercise ${activeSession.exIndex + 1} of ${activeSession.exercises.length}`;
+
+      updateKeyboardHighlight(currentStr[activeSession.charIndex]);
+    }
+
+    document.getElementById('lesson-hidden-input').addEventListener('keydown', (e) => {
+      if (document.getElementById('lesson-overlay').classList.contains('hidden')) return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.key.length !== 1) return;
+      e.preventDefault();
+      processLessonKeystroke(e.key);
+    });
+
+    function processLessonKeystroke(typed) {
+      if (!activeSession.startTime) {
+        activeSession.startTime = Date.now();
+        activeSession.wpmTimer = setInterval(updateLiveLessonTelemetry, 250);
+      }
+
+      const currentStr = activeSession.exercises[activeSession.exIndex];
+      const expected = currentStr[activeSession.charIndex];
+      activeSession.totalKeystrokes++;
+
+      if (typed === expected) {
+        activeSession.charIndex++;
+        activeSession.combo++;
+        duoSound.keyTap(activeSession.combo);
+
+        // Flash keycap hit
+        const keyEl = document.querySelector(`#duo-visual-keyboard [data-key="${typed.toLowerCase()}"]`);
+        if (keyEl) {
+          keyEl.classList.add('pressed-hit');
+          setTimeout(() => keyEl.classList.remove('pressed-hit'), 110);
+        }
+
+        if (activeSession.combo === 15) {
+          const coach = COACHES[activeSession.coachId];
+          document.getElementById('lesson-coach-dialogue').textContent = coach.lines.streak;
+        }
+
+        // Check if current exercise line is finished
+        if (activeSession.charIndex >= currentStr.length) {
+          duoSound.stepChime();
+          activeSession.exIndex++;
+          activeSession.charIndex = 0;
+
+          const overallPct = Math.round((activeSession.exIndex / activeSession.exercises.length) * 100);
+          document.getElementById('lesson-progress-fill').style.width = `${overallPct}%`;
+
+          if (activeSession.exIndex >= activeSession.exercises.length) {
+            completeLessonSession();
+            return;
+          }
+        }
+
+        renderExercisePrompt();
+        updateLiveLessonTelemetry();
+      } else {
+        // Typo handling
+        activeSession.errors++;
+        activeSession.combo = 0;
+        duoSound.errorThud();
+
+        const lowerExp = expected.toLowerCase();
+        if (/[a-z]/.test(lowerExp)) {
+          state.mistakeCounts[lowerExp] = (state.mistakeCounts[lowerExp] || 0) + 1;
+        }
+
+        const coach = COACHES[activeSession.coachId];
+        document.getElementById('lesson-coach-dialogue').textContent = coach.lines.typo;
+
+        const stageBox = document.getElementById('typing-stage-box');
+        stageBox.classList.remove('animate-duo-shake');
+        void stageBox.offsetWidth;
+        stageBox.classList.add('animate-duo-shake');
+
+        // Deduct heart in standard lesson mode if not in Zen mode
+        if (activeSession.mode === 'lesson' && !state.settings.zenHearts) {
+          state.hearts = Math.max(0, state.hearts - 1);
+          document.getElementById('lesson-hearts-text').textContent = state.hearts;
+          syncAllCounters();
+          if (state.hearts <= 0) {
+            closeLessonOverlay();
+            showToast('💔', 'Out of Hearts!', 'Refill hearts in the Shop or enable Zen Hearts in Settings!');
+            return;
+          }
+        }
+        updateLiveLessonTelemetry();
+      }
+    }
+
+    function skipCurrentExercise() {
+      activeSession.exIndex++;
+      activeSession.charIndex = 0;
+      const overallPct = Math.round((activeSession.exIndex / activeSession.exercises.length) * 100);
+      document.getElementById('lesson-progress-fill').style.width = `${overallPct}%`;
+      if (activeSession.exIndex >= activeSession.exercises.length) {
+        completeLessonSession();
+      } else {
+        renderExercisePrompt();
+        focusLessonInput();
+      }
+    }
+
+    function updateLiveLessonTelemetry() {
+      if (!activeSession.startTime) return { wpm: 0, acc: 100 };
+      const mins = Math.max((Date.now() - activeSession.startTime) / 60000, 0.01);
+      const correctChars = Math.max(1, activeSession.totalKeystrokes - activeSession.errors);
+      const wpm = Math.round((correctChars / 5) / mins);
+      const acc = activeSession.totalKeystrokes > 0
+        ? Math.max(0, Math.round(((activeSession.totalKeystrokes - activeSession.errors) / activeSession.totalKeystrokes) * 100))
+        : 100;
+
+      document.getElementById('lesson-wpm').textContent = wpm;
+      document.getElementById('lesson-acc').textContent = acc;
+      return { wpm, acc };
+    }
+
+    function completeLessonSession() {
+      clearInterval(activeSession.wpmTimer);
+      clearInterval(activeSession.challengeTimer);
+
+      const { wpm, acc } = updateLiveLessonTelemetry();
+      const multiplier = state.doubleXp ? 2 : 1;
+      const earnedXp = activeSession.xpReward * multiplier;
+
+      state.xp += earnedXp;
+      state.dailyXp += earnedXp;
+      state.gems += activeSession.mode === 'challenge' ? 25 : 10;
+      if (wpm > state.bestWpm) state.bestWpm = wpm;
+
+      // Update Quests
+      if (state.dailyXp >= 50) state.questsCompleted.xp50 = true;
+      if (acc >= 95) state.questsCompleted.acc95 = Math.min(2, state.questsCompleted.acc95 + 1);
+      if (activeSession.mode === 'challenge') state.questsCompleted.challenge1 = true;
+
+      // Mark Path Node Complete
+      if (!activeSession.isStandalone) {
+        if (!state.completedNodes[state.currentUnit]) state.completedNodes[state.currentUnit] = {};
+        state.completedNodes[state.currentUnit][currentPlayingNodeIndex] = true;
+      }
+
+      saveState();
+      syncAllCounters();
+      renderRightSidebarWidgets();
+      renderLeaderboards();
+      renderQuests();
+
+      document.getElementById('lesson-overlay').classList.add('hidden');
+      duoSound.fanfare();
+      launchConfetti();
+
+      const coach = COACHES[activeSession.coachId];
+      document.getElementById('complete-mascot-svg').innerHTML = coach.svg('cheer');
+      document.getElementById('complete-headline').textContent =
+        activeSession.mode === 'challenge' ? 'Challenge Conquered!' : 'Lesson Complete!';
+      document.getElementById('complete-subtext').textContent =
+        `${coach.name} is proud! You earned +10 Gems and boosted your fluency.`;
+      document.getElementById('comp-xp').textContent = `+${earnedXp} XP`;
+      document.getElementById('comp-acc').textContent = `${acc}%`;
+      document.getElementById('comp-wpm').textContent = `${wpm} WPM`;
+      document.getElementById('complete-modal').classList.remove('hidden');
+    }
+
+    function closeCompleteModal() {
+      document.getElementById('complete-modal').classList.add('hidden');
+      renderWindingPath();
+    }
+
+    // =========================================================================
+    // 11. LEADERBOARDS, QUESTS, SHOP & COACH GALLERY RENDERERS
+    // =========================================================================
+    function getLeaderboardStandings() {
+      const rivals = [
+        { name: 'Zara_Types', xp: 790, avatar: '🟣' },
+        { name: 'You (Typing Learner)', xp: state.xp, avatar: '🦉', isUser: true },
+        { name: 'Coach_Max', xp: 610, avatar: '🔴' },
+        { name: 'Bea_Keys', xp: 540, avatar: '🟢' },
+        { name: 'Prof_Eddy', xp: 470, avatar: '🐻' },
+        { name: 'SwiftPinky99', xp: 390, avatar: '⚡' }
+      ];
+      return rivals.sort((a, b) => b.xp - a.xp);
+    }
+
+    function renderLeaderboards() {
+      const standings = getLeaderboardStandings();
+      const fullList = document.getElementById('full-leaderboard-list');
+      fullList.innerHTML = standings.map((r, i) => `
+        <div class="flex items-center justify-between px-5 py-3.5 ${r.isUser ? 'bg-[#DDF4FF]' : 'bg-white'}">
+          <div class="flex items-center gap-4">
+            <span class="w-6 font-black text-sm ${i < 3 ? 'text-[#58CC02]' : 'text-[#777777]'}">${i + 1}</span>
+            <span class="text-2xl">${r.avatar}</span>
+            <span class="font-extrabold text-sm ${r.isUser ? 'text-[#1899D6]' : 'text-[#3C3C3C]'}">${r.name}</span>
+          </div>
+          <span class="font-extrabold text-sm text-[#777777]">${r.xp} XP</span>
+        </div>
+      `).join('');
+    }
+
+    function getDailyQuestsData() {
+      return [
+        {
+          icon: '⚡',
+          title: `Earn ${state.settings.dailyGoal} XP Today`,
+          current: Math.min(state.dailyXp, state.settings.dailyGoal),
+          target: state.settings.dailyGoal
+        },
+        {
+          icon: '🎯',
+          title: 'Hit 95%+ accuracy in 2 lessons',
+          current: state.questsCompleted.acc95,
+          target: 2
+        },
+        {
+          icon: '⏱️',
+          title: 'Complete 1 Timed Milestone Challenge',
+          current: state.questsCompleted.challenge1 ? 1 : 0,
+          target: 1
+        }
+      ];
+    }
+
+    function renderQuests() {
+      const quests = getDailyQuestsData();
+      const fullEl = document.getElementById('full-quests-list');
+      fullEl.innerHTML = quests.map(q => {
+        const pct = Math.min(100, Math.round((q.current / q.target) * 100));
+        return `
+          <div class="border-2 border-[#E5E5E5] rounded-2xl p-4 flex items-center gap-4">
+            <span class="text-3xl">${q.icon}</span>
+            <div class="flex-1">
+              <div class="flex justify-between text-sm font-extrabold text-[#3C3C3C] mb-1.5">
+                <span>${q.title}</span>
+                <span class="text-[#777777]">${q.current} / ${q.target}</span>
+              </div>
+              <div class="w-full h-3.5 bg-[#E5E5E5] rounded-full overflow-hidden">
+                <div class="h-full bg-[#FFC800] rounded-full transition-all" style="width: ${pct}%"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderRightSidebarWidgets() {
+      // Quests preview
+      const quests = getDailyQuestsData().slice(0, 2);
+      document.getElementById('right-quests-preview').innerHTML = quests.map(q => {
+        const pct = Math.min(100, Math.round((q.current / q.target) * 100));
+        return `
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">${q.icon}</span>
+            <div class="flex-1">
+              <div class="text-xs font-extrabold text-[#3C3C3C] mb-1">${q.title}</div>
+              <div class="w-full h-3 bg-[#E5E5E5] rounded-full overflow-hidden">
+                <div class="h-full bg-[#FFC800] rounded-full" style="width: ${pct}%"></div>
+              </div>
+            </div>
+            <span class="text-xs font-extrabold text-[#777777]">${q.current}/${q.target}</span>
+          </div>
+        `;
+      }).join('');
+
+      // Leaderboard preview
+      const standings = getLeaderboardStandings().slice(0, 4);
+      document.getElementById('right-leaderboard-preview').innerHTML = standings.map((r, i) => `
+        <div class="flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-extrabold ${r.isUser ? 'bg-[#DDF4FF] text-[#1899D6]' : 'text-[#3C3C3C]'}">
+          <div class="flex items-center gap-2">
+            <span class="w-4 text-[#58CC02]">${i + 1}</span>
+            <span>${r.avatar}</span>
+            <span class="truncate max-w-[130px]">${r.name}</span>
+          </div>
+          <span class="text-[#777777]">${r.xp} XP</span>
+        </div>
+      `).join('');
+
+      // Active Coach Widget
+      const coach = state.settings.preferredCoach === 'all' ? COACHES.pip : (COACHES[state.settings.preferredCoach] || COACHES.pip);
+      document.getElementById('right-coach-avatar').innerHTML = coach.svg('happy');
+      document.getElementById('right-coach-name').textContent = coach.name;
+      document.getElementById('right-coach-tip').textContent = coach.lines.intro;
+    }
+
+    function renderCoachGallery() {
+      const grid = document.getElementById('coach-gallery-grid');
+      grid.innerHTML = Object.values(COACHES).map(c => {
+        const isSelected = state.settings.preferredCoach === c.id;
+        return `
+          <div class="border-2 ${isSelected ? 'border-[#1CB0F6] bg-[#DDF4FF]' : 'border-[#E5E5E5] bg-white'} rounded-2xl p-4 flex items-center gap-4">
+            <div class="w-16 h-16 shrink-0">${c.svg('happy')}</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-extrabold text-sm text-[#3C3C3C]">${c.name}</div>
+              <div class="text-[11px] font-bold text-[#1CB0F6] mb-1">${c.role}</div>
+              <p class="text-xs text-[#777777] line-clamp-2">${c.bio}</p>
+              <button onclick="selectCoachFromProfile('${c.id}')" class="mt-2 px-3 py-1 rounded-lg text-[11px] font-extrabold uppercase bg-[#58CC02] text-white">
+                ${isSelected ? '✓ Selected' : 'Choose Helper'}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectCoachFromProfile(coachId) {
+      updateSetting('preferredCoach', coachId);
+      renderCoachGallery();
+    }
+
+    function buyShopItem(item, cost) {
+      if (state.gems < cost) {
+        duoSound.errorThud();
+        showToast('💎', 'Not Enough Gems', 'Complete lessons or open chests to earn more Gems!');
+        return;
+      }
+      state.gems -= cost;
+      if (item === 'hearts') state.hearts = 5;
+      if (item === 'freeze') state.freezes += 1;
+      if (item === 'doubleXp') state.doubleXp = true;
+
+      saveState();
+      syncAllCounters();
+      duoSound.fanfare();
+      showToast('🎉', 'Purchase Complete!', 'Your power-up is active!');
+    }
+
+    // =========================================================================
+    // 12. CONFETTI & HELPERS
+    // =========================================================================
+    function launchConfetti() {
+      const canvas = document.getElementById('confetti-canvas');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const ctx = canvas.getContext('2d');
+      const colors = ['#58CC02', '#1CB0F6', '#FFC800', '#CE82FF', '#FF9600'];
+      const pieces = Array.from({ length: 75 }, () => ({
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        vx: (Math.random() - 0.5) * 15,
+        vy: (Math.random() - 0.7) * 15,
+        size: Math.random() * 7 + 4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        life: 80
+      }));
+
+      function frame() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let active = false;
+        pieces.forEach(p => {
+          if (p.life > 0) {
+            active = true;
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.35;
+            p.life--;
+            ctx.fillStyle = p.color;
+            ctx.fillRect(p.x, p.y, p.size, p.size);
+          }
+        });
+        if (active) requestAnimationFrame(frame);
+        else ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      frame();
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    window.onload = initApp;
+  </script>
+</body>
+</html>
